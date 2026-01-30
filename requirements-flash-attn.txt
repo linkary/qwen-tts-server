@@ -1,0 +1,10 @@
+# Flash Attention 2 (Optional)
+# Requires: CUDA-capable GPU, CUDA toolkit, and torch already installed
+# 
+# Installation:
+# 1. Make sure torch is installed: pip install torch>=2.1.0
+# 2. Install flash-attn: pip install -r requirements-flash-attn.txt --no-build-isolation
+#
+# Note: This is optional. The server works without it but may be slower.
+
+flash-attn>=2.5.0

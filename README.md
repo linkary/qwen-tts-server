@@ -27,33 +27,36 @@ A production-ready FastAPI server for Qwen3-TTS models, supporting CustomVoice (
 
 ### Local Installation
 
-1. **Clone the repository**
+1. **Activate conda environment**
 
 ```bash
-cd qwen-tts-server
+conda activate learn_ai  # or your preferred environment
 ```
 
-2. **Create virtual environment**
+2. **Install dependencies in order** (important!)
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+# Step 1: Install PyTorch first
+pip install torch>=2.1.0 --index-url https://download.pytorch.org/whl/cu121
 
-3. **Install dependencies**
-
-```bash
+# Step 2: Install other dependencies
 pip install -r requirements.txt
+
+# Step 3 (Optional): Install Flash Attention for better performance
+# This requires CUDA and takes 5-15 minutes to compile
+pip install flash-attn>=2.5.0 --no-build-isolation
 ```
 
-4. **Configure environment**
+**Note:** Flash Attention is optional. If installation fails, the server works fine without it. Set `USE_FLASH_ATTENTION=false` in `.env`.
+
+3. **Configure environment**
 
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
-5. **Start the server**
+4. **Start the server**
 
 ```bash
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -65,6 +68,8 @@ Or use the start script:
 chmod +x start.sh
 ./start.sh
 ```
+
+**See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.**
 
 ### Docker Installation
 
@@ -626,10 +631,26 @@ If you encounter out-of-memory errors:
 
 ### Flash Attention Issues
 
-If Flash Attention fails to install or causes issues:
+Flash Attention is **optional** and requires:
+- NVIDIA GPU (Ampere or newer)
+- CUDA Toolkit 11.8+
+- PyTorch installed first
 
-1. Set `USE_FLASH_ATTENTION=false` in `.env`
-2. The model will fall back to standard attention
+If Flash Attention fails to install:
+
+1. Make sure torch is installed first:
+   ```bash
+   pip install torch>=2.1.0 --index-url https://download.pytorch.org/whl/cu121
+   ```
+
+2. Try installing with `--no-build-isolation`:
+   ```bash
+   pip install flash-attn>=2.5.0 --no-build-isolation
+   ```
+
+3. If it still fails, skip it and set `USE_FLASH_ATTENTION=false` in `.env`
+   - The server works perfectly without Flash Attention
+   - You'll just have slightly slower inference
 
 ### Model Download Issues
 

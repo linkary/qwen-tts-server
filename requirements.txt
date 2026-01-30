@@ -1,17 +1,29 @@
+# Core dependencies (install first)
+torch>=2.1.0
+numpy>=1.24.0
+
+# Audio processing
+soundfile>=0.12.1
+pydub>=0.25.1
+librosa>=0.10.1
+
+# API framework
 fastapi>=0.110.0
 uvicorn[standard]>=0.27.0
 pydantic>=2.6.0
 pydantic-settings>=2.1.0
 python-multipart>=0.0.9
-qwen-tts>=0.0.5
-soundfile>=0.12.1
-numpy>=1.24.0
-torch>=2.1.0
-flash-attn>=2.5.0
 python-dotenv>=1.0.0
 aiofiles>=23.2.1
 sse-starlette>=2.0.0
 httpx>=0.26.0
-pydub>=0.25.1
-librosa>=0.10.1
+
+# TTS model
+qwen-tts>=0.0.5
+
+# Optional: File validation (may require system dependencies)
 python-magic>=0.4.27
+
+# NOTE: flash-attn is OPTIONAL and requires torch + CUDA installed first
+# Install separately AFTER other dependencies: pip install flash-attn>=2.5.0 --no-build-isolation
+# Or skip it and set USE_FLASH_ATTENTION=false in .env
