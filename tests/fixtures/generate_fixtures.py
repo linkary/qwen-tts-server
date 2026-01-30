@@ -90,6 +90,12 @@ def generate_all_fixtures():
         if end > len(audio):
             break
         segment = generate_test_audio(duration=0.2, frequency=freq)
+        # Ensure segment length matches slice length
+        slice_len = end - start
+        if len(segment) > slice_len:
+            segment = segment[:slice_len]
+        elif len(segment) < slice_len:
+            segment = np.pad(segment, (0, slice_len - len(segment)), mode='constant')
         audio[start:end] = segment
     save_test_audio(audio, 24000, os.path.join(AUDIO_DIR, 'continuous_speech.wav'))
     

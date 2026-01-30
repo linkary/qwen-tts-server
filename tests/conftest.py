@@ -97,6 +97,13 @@ def test_audio_samples() -> Dict[str, tuple]:
         if end > len(audio):
             break
         segment = generate_test_audio(duration=0.2, sample_rate=sample_rate, frequency=freq)
+        # Ensure segment length matches slice length
+        slice_len = end - start
+        if len(segment) > slice_len:
+            segment = segment[:slice_len]
+        elif len(segment) < slice_len:
+            # Pad with zeros if needed
+            segment = np.pad(segment, (0, slice_len - len(segment)), mode='constant')
         audio[start:end] = segment
     samples["continuous"] = (audio, sample_rate)
     
