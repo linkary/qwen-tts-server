@@ -1,0 +1,25 @@
+# Docker Compose override for development
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  qwen-tts-server:
+    # Mount code for live reloading
+    volumes:
+      - ./app:/app/app:ro
+      - ./models:/app/models
+      - ./output:/app/output
+    
+    # Override command for development with reload
+    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    
+    # Enable debug logging
+    environment:
+      - LOG_LEVEL=DEBUG
+      - PRELOAD_MODELS=false
+    
+    # Development ports
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # For debugpy if needed

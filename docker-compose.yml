@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  qwen-tts-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: qwen-tts-server:latest
+    container_name: qwen-tts-server
+    
+    # GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Environment variables
+    environment:
+      # Model Configuration
+      - QWEN_TTS_CUSTOM_VOICE_MODEL=Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice
+      - QWEN_TTS_VOICE_DESIGN_MODEL=Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign
+      - QWEN_TTS_BASE_MODEL=Qwen/Qwen3-TTS-12Hz-1.7B-Base
+      - QWEN_TTS_TOKENIZER=Qwen/Qwen3-TTS-Tokenizer-12Hz
+      
+      # Device Configuration
+      - CUDA_DEVICE=cuda:0
+      - MODEL_DTYPE=bfloat16
+      - USE_FLASH_ATTENTION=true
+      
+      # API Configuration
+      - API_KEYS=${API_KEYS:-your-api-key-1,your-api-key-2}
+      - HOST=0.0.0.0
+      - PORT=8000
+      
+      # Model Caching
+      - HF_HOME=/app/models
+      - MODEL_CACHE_DIR=/app/models
+      
+      # Logging
+      - LOG_LEVEL=INFO
+      
+      # Optional: Preload models on startup
+      - PRELOAD_MODELS=false
+    
+    # Ports
+    ports:
+      - "8000:8000"
+    
+    # Volumes for persistent model cache
+    volumes:
+      - ./models:/app/models
+      - ./output:/app/output
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Resource limits (adjust based on your GPU)
+    # Uncomment and modify as needed
+    # mem_limit: 32g
+    # shm_size: 16g
+
+networks:
+  default:
+    name: qwen-tts-network

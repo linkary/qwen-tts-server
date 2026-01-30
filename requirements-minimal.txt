@@ -1,0 +1,4 @@
+# Qwen3-TTS API Server
+# https://github.com/QwenLM/Qwen3-TTS
+
+qwen-tts>=1.0.0
