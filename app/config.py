@@ -54,6 +54,58 @@ class Settings(BaseSettings):
         description="Preload all models on startup (requires more GPU memory)"
     )
     
+    # Cache Configuration
+    voice_cache_enabled: bool = Field(
+        default=True,
+        description="Enable voice prompt caching for faster repeated generations"
+    )
+    voice_cache_max_size: int = Field(
+        default=100,
+        description="Maximum number of voice prompts to cache"
+    )
+    voice_cache_ttl_seconds: int = Field(
+        default=3600,
+        description="Time-to-live for cached voice prompts in seconds"
+    )
+    
+    # Audio Preprocessing
+    audio_preprocessing_enabled: bool = Field(
+        default=True,
+        description="Enable automatic audio preprocessing for reference audio"
+    )
+    ref_audio_max_duration: float = Field(
+        default=15.0,
+        description="Maximum duration for reference audio in seconds"
+    )
+    ref_audio_target_duration_min: float = Field(
+        default=5.0,
+        description="Minimum target duration for reference audio in seconds"
+    )
+    
+    # Validation
+    audio_upload_max_size_mb: float = Field(
+        default=5.0,
+        description="Maximum file size for audio uploads in MB"
+    )
+    audio_upload_max_duration: float = Field(
+        default=60.0,
+        description="Maximum duration for uploaded audio in seconds"
+    )
+    
+    # Performance
+    enable_performance_logging: bool = Field(
+        default=True,
+        description="Enable detailed performance logging with RTF metrics"
+    )
+    enable_warmup: bool = Field(
+        default=True,
+        description="Run model warmup on startup"
+    )
+    warmup_text: str = Field(
+        default="This is a warmup test to initialize the model.",
+        description="Test text for model warmup"
+    )
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

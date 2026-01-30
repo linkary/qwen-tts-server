@@ -11,3 +11,7 @@ flash-attn>=2.5.0
 python-dotenv>=1.0.0
 aiofiles>=23.2.1
 sse-starlette>=2.0.0
+httpx>=0.26.0
+pydub>=0.25.1
+librosa>=0.10.1
+python-magic>=0.4.27

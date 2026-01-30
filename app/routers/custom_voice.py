@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from sse_starlette.sse import EventSourceResponse
 from app.auth import verify_api_key
+from app.config import settings
 from app.models.schemas import (
     CustomVoiceRequest,
     CustomVoiceBatchRequest,
@@ -17,8 +18,9 @@ from app.models.schemas import (
     LanguagesResponse,
 )
 from app.models.manager import model_manager
-from app.utils.audio import numpy_to_wav_bytes, numpy_to_base64
+from app.utils.audio import numpy_to_wav_bytes, numpy_to_base64, apply_speed
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
+from app.utils.metrics import PerformanceTracker
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +102,10 @@ async def generate_custom_voice(
     
     Returns audio file (WAV) or base64 encoded audio based on response_format
     """
+    # Initialize performance tracker
+    tracker = PerformanceTracker()
+    tracker.start()
+    
     try:
         logger.info(f"Generating custom voice for speaker: {request.speaker}")
         
@@ -114,22 +120,37 @@ async def generate_custom_voice(
             instruct=request.instruct if request.instruct else "",
         )
         
+        # Apply speed adjustment if requested
+        audio_data = wavs[0]
+        if hasattr(request, 'speed') and request.speed != 1.0:
+            audio_data = apply_speed(audio_data, sr, request.speed)
+        
+        # Track metrics
+        tracker.mark_generation()
+        audio_duration = len(audio_data) / sr
+        tracker.set_audio_duration(audio_duration)
+        
+        # Log performance
+        if settings.enable_performance_logging:
+            tracker.log_metrics(logger)
+        
         # Return based on format
         if request.response_format == "base64":
-            audio_base64 = numpy_to_base64(wavs[0], sr)
+            audio_base64 = numpy_to_base64(audio_data, sr)
             return AudioResponse(
                 audio=audio_base64,
                 sample_rate=sr,
                 format="wav"
             )
         else:
-            # Return WAV file
-            wav_bytes = numpy_to_wav_bytes(wavs[0], sr)
+            # Return WAV file with performance headers
+            wav_bytes = numpy_to_wav_bytes(audio_data, sr)
             return Response(
                 content=wav_bytes,
                 media_type="audio/wav",
                 headers={
-                    "Content-Disposition": f"attachment; filename=custom_voice_{request.speaker}.wav"
+                    "Content-Disposition": f"attachment; filename=custom_voice_{request.speaker}.wav",
+                    **tracker.get_headers()
                 }
             )
     
@@ -148,6 +169,10 @@ async def generate_custom_voice_stream(
     
     Returns Server-Sent Events with audio chunks
     """
+    # Initialize performance tracker
+    tracker = PerformanceTracker()
+    tracker.start()
+    
     try:
         logger.info(f"Generating custom voice stream for speaker: {request.speaker}")
         
@@ -162,11 +187,30 @@ async def generate_custom_voice_stream(
             instruct=request.instruct if request.instruct else "",
         )
         
+        # Apply speed adjustment if requested
+        audio_data = wavs[0]
+        if hasattr(request, 'speed') and request.speed != 1.0:
+            audio_data = apply_speed(audio_data, sr, request.speed)
+        
+        # Track metrics
+        tracker.mark_generation()
+        audio_duration = len(audio_data) / sr
+        tracker.set_audio_duration(audio_duration)
+        
+        # Log performance
+        if settings.enable_performance_logging:
+            tracker.log_metrics(logger)
+        
         # Stream audio chunks
         async def generate():
-            yield create_sse_message(f'{{"sample_rate": {sr}}}', "metadata")
+            # Send metadata with performance info
+            metadata = {
+                "sample_rate": sr,
+                **tracker.get_metrics()
+            }
+            yield create_sse_message(str(metadata).replace("'", '"'), "metadata")
             
-            async for chunk_base64 in stream_audio_base64_chunks(wavs[0], sr):
+            async for chunk_base64 in stream_audio_base64_chunks(audio_data, sr):
                 yield create_sse_message(chunk_base64, "audio")
             
             yield create_sse_message("complete", "done")

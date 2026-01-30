@@ -3,10 +3,12 @@ Base model API endpoints for voice cloning
 """
 import logging
 import uuid
+import time
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, File, Form
 from sse_starlette.sse import EventSourceResponse
 from app.auth import verify_api_key
+from app.config import settings
 from app.models.schemas import (
     VoiceCloneRequest,
     CreatePromptRequest,
@@ -23,8 +25,11 @@ from app.utils.audio import (
     numpy_to_wav_bytes,
     numpy_to_base64,
     prepare_ref_audio,
+    apply_speed,
 )
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
+from app.utils.caching import get_voice_cache
+from app.utils.metrics import PerformanceTracker
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +46,10 @@ async def clone_voice(
     
     Returns audio file (WAV) or base64 encoded audio based on response_format
     """
+    # Initialize performance tracker
+    tracker = PerformanceTracker()
+    tracker.start()
+    
     try:
         logger.info("Generating voice clone")
         
@@ -60,23 +69,69 @@ async def clone_voice(
         # Get model
         model = model_manager.get_base_model()
         
-        # Prepare reference audio
+        # Prepare reference audio (with preprocessing)
         ref_audio = await prepare_ref_audio(
             ref_audio_url=request.ref_audio_url,
             ref_audio_base64=request.ref_audio_base64,
+            preprocess=True,
+            validate=False,  # URL/base64 already validated by client
         )
         
         if ref_audio is None:
             raise HTTPException(status_code=400, detail="Failed to load reference audio")
         
-        # Generate audio with voice clone
+        audio_data, sample_rate = ref_audio
+        
+        # Try to use cache if enabled
+        voice_prompt = None
+        if settings.voice_cache_enabled:
+            cache = get_voice_cache()
+            voice_prompt = cache.get(
+                audio_data,
+                sample_rate,
+                request.ref_text,
+                request.x_vector_only_mode
+            )
+            if voice_prompt is not None:
+                tracker.set_cache_status("hit")
+                logger.debug("Using cached voice prompt")
+        
+        # Create prompt if not cached
+        if voice_prompt is None:
+            tracker.set_cache_status("miss")
+            voice_prompt = model.create_voice_clone_prompt(
+                ref_audio=(audio_data, sample_rate),
+                ref_text=request.ref_text if not request.x_vector_only_mode else None,
+                x_vector_only_mode=request.x_vector_only_mode,
+            )
+            
+            # Cache the prompt if enabled
+            if settings.voice_cache_enabled:
+                cache = get_voice_cache()
+                cache.put(
+                    audio_data,
+                    sample_rate,
+                    request.ref_text,
+                    request.x_vector_only_mode,
+                    voice_prompt
+                )
+                logger.debug("Cached voice prompt")
+        
+        # Generate audio with voice clone prompt
         wavs, sr = model.generate_voice_clone(
             text=request.text,
             language=request.language,
-            ref_audio=ref_audio,
-            ref_text=request.ref_text if not request.x_vector_only_mode else None,
-            x_vector_only_mode=request.x_vector_only_mode,
+            voice_clone_prompt=voice_prompt,
         )
+        
+        # Track metrics
+        tracker.mark_generation()
+        audio_duration = len(wavs[0]) / sr
+        tracker.set_audio_duration(audio_duration)
+        
+        # Log performance
+        if settings.enable_performance_logging:
+            tracker.log_metrics(logger)
         
         # Return based on format
         if request.response_format == "base64":
@@ -87,15 +142,17 @@ async def clone_voice(
                 format="wav"
             )
         else:
-            # Return WAV file
+            # Return WAV file with performance headers
             wav_bytes = numpy_to_wav_bytes(wavs[0], sr)
-            return Response(
+            response = Response(
                 content=wav_bytes,
                 media_type="audio/wav",
                 headers={
-                    "Content-Disposition": "attachment; filename=voice_clone.wav"
+                    "Content-Disposition": "attachment; filename=voice_clone.wav",
+                    **tracker.get_headers()
                 }
             )
+            return response
     
     except HTTPException:
         raise
@@ -114,6 +171,10 @@ async def clone_voice_stream(
     
     Returns Server-Sent Events with audio chunks
     """
+    # Initialize performance tracker
+    tracker = PerformanceTracker()
+    tracker.start()
+    
     try:
         logger.info("Generating voice clone stream")
         
@@ -133,29 +194,85 @@ async def clone_voice_stream(
         # Get model
         model = model_manager.get_base_model()
         
-        # Prepare reference audio
+        # Prepare reference audio (with preprocessing)
         ref_audio = await prepare_ref_audio(
             ref_audio_url=request.ref_audio_url,
             ref_audio_base64=request.ref_audio_base64,
+            preprocess=True,
+            validate=False,
         )
         
         if ref_audio is None:
             raise HTTPException(status_code=400, detail="Failed to load reference audio")
         
-        # Generate audio with voice clone
+        audio_data, sample_rate = ref_audio
+        
+        # Try to use cache if enabled
+        voice_prompt = None
+        if settings.voice_cache_enabled:
+            cache = get_voice_cache()
+            voice_prompt = cache.get(
+                audio_data,
+                sample_rate,
+                request.ref_text,
+                request.x_vector_only_mode
+            )
+            if voice_prompt is not None:
+                tracker.set_cache_status("hit")
+                logger.debug("Using cached voice prompt")
+        
+        # Create prompt if not cached
+        if voice_prompt is None:
+            tracker.set_cache_status("miss")
+            voice_prompt = model.create_voice_clone_prompt(
+                ref_audio=(audio_data, sample_rate),
+                ref_text=request.ref_text if not request.x_vector_only_mode else None,
+                x_vector_only_mode=request.x_vector_only_mode,
+            )
+            
+            # Cache the prompt if enabled
+            if settings.voice_cache_enabled:
+                cache = get_voice_cache()
+                cache.put(
+                    audio_data,
+                    sample_rate,
+                    request.ref_text,
+                    request.x_vector_only_mode,
+                    voice_prompt
+                )
+                logger.debug("Cached voice prompt")
+        
+        # Generate audio with voice clone prompt
         wavs, sr = model.generate_voice_clone(
             text=request.text,
             language=request.language,
-            ref_audio=ref_audio,
-            ref_text=request.ref_text if not request.x_vector_only_mode else None,
-            x_vector_only_mode=request.x_vector_only_mode,
+            voice_clone_prompt=voice_prompt,
         )
+        
+        # Apply speed adjustment if requested
+        audio_data = wavs[0]
+        if request.speed != 1.0:
+            audio_data = apply_speed(audio_data, sr, request.speed)
+        
+        # Track metrics
+        tracker.mark_generation()
+        audio_duration = len(audio_data) / sr
+        tracker.set_audio_duration(audio_duration)
+        
+        # Log performance
+        if settings.enable_performance_logging:
+            tracker.log_metrics(logger)
         
         # Stream audio chunks
         async def generate():
-            yield create_sse_message(f'{{"sample_rate": {sr}}}', "metadata")
+            # Send metadata with performance info
+            metadata = {
+                "sample_rate": sr,
+                **tracker.get_metrics()
+            }
+            yield create_sse_message(str(metadata).replace("'", '"'), "metadata")
             
-            async for chunk_base64 in stream_audio_base64_chunks(wavs[0], sr):
+            async for chunk_base64 in stream_audio_base64_chunks(audio_data, sr):
                 yield create_sse_message(chunk_base64, "audio")
             
             yield create_sse_message("complete", "done")
@@ -333,4 +450,55 @@ async def upload_reference_audio(
         raise
     except Exception as e:
         logger.error(f"Error uploading reference audio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/cache/stats")
+async def get_cache_stats(api_key: str = Depends(verify_api_key)):
+    """
+    Get voice prompt cache statistics
+    
+    Returns cache hit rate, size, and other metrics
+    """
+    if not settings.voice_cache_enabled:
+        return {
+            "enabled": False,
+            "message": "Voice cache is disabled"
+        }
+    
+    try:
+        cache = get_voice_cache()
+        stats = cache.get_stats()
+        
+        return {
+            "enabled": True,
+            **stats
+        }
+    except Exception as e:
+        logger.error(f"Error getting cache stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/cache/clear")
+async def clear_cache(api_key: str = Depends(verify_api_key)):
+    """
+    Clear all cached voice prompts
+    
+    Useful for freeing memory or forcing re-extraction
+    """
+    if not settings.voice_cache_enabled:
+        return {
+            "enabled": False,
+            "message": "Voice cache is disabled"
+        }
+    
+    try:
+        cache = get_voice_cache()
+        cache.clear()
+        
+        return {
+            "message": "Cache cleared successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error clearing cache: {e}")
         raise HTTPException(status_code=500, detail=str(e))
