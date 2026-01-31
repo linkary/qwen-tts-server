@@ -6,6 +6,18 @@
 - Conda or Miniconda
 - (Optional) NVIDIA GPU with CUDA support for GPU acceleration
 
+### System Dependencies
+
+Install required audio tools:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y sox libsox-dev ffmpeg
+
+# macOS
+brew install sox ffmpeg
+```
+
 ## Quick Install (Recommended)
 
 The install script auto-detects your environment, CUDA, and GPU compatibility:
