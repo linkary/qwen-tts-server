@@ -2,9 +2,12 @@
 Main FastAPI application
 """
 import logging
+from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app import __version__
 from app.config import settings
 from app.models.manager import model_manager
@@ -123,11 +126,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files for demo page
+static_dir = Path(__file__).parent / "static"
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    logger.info(f"Static files mounted from {static_dir}")
+
 # Include routers
 app.include_router(health.router)
 app.include_router(custom_voice.router)
 app.include_router(voice_design.router)
 app.include_router(base.router)
+
+
+@app.get("/demo")
+async def demo_page():
+    """Serve the interactive demo page"""
+    demo_file = Path(__file__).parent / "static" / "index.html"
+    if demo_file.exists():
+        return FileResponse(demo_file, media_type="text/html")
+    return {"error": "Demo page not found", "hint": "Static files may not be installed"}
 
 
 @app.get("/")
@@ -136,6 +154,7 @@ async def root():
     return {
         "name": "Qwen3-TTS API Server",
         "version": __version__,
+        "demo": "/demo",
         "docs": "/docs",
         "redoc": "/redoc",
         "openapi": "/openapi.json",

@@ -5,6 +5,7 @@ A production-ready FastAPI server for Qwen3-TTS models, supporting CustomVoice (
 ## Features
 
 - **Multiple Model Support**: CustomVoice, VoiceDesign, and Base (voice cloning) models
+- **Interactive Demo Page**: Built-in web UI for testing all API endpoints
 - **Streaming & Batch Generation**: Real-time streaming or batch processing
 - **Voice Prompt Caching**: Intelligent LRU cache for 60-80% latency reduction on repeated requests
 - **Smart Audio Preprocessing**: Automatic silence removal, clipping, and normalization
@@ -168,6 +169,7 @@ WARMUP_TEXT="This is a warmup test to initialize the model."
 
 Once the server is running, access the interactive API documentation:
 
+- **Demo Page**: http://localhost:8000/demo - Interactive web UI for testing all features
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI Schema**: http://localhost:8000/openapi.json
