@@ -135,4 +135,4 @@ settings = Settings()
 if settings.hf_home:
     os.environ["HF_HOME"] = settings.hf_home
 if settings.model_cache_dir:
-    os.environ["TRANSFORMERS_CACHE"] = settings.model_cache_dir
+    os.environ["HF_HOME"] = settings.model_cache_dir  # Use HF_HOME instead of deprecated TRANSFORMERS_CACHE
