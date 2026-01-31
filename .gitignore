@@ -37,7 +37,6 @@ ENV/
 *~
 
 # Models and cache
-models/
 .cache/
 *.pt
 *.pth
