@@ -41,6 +41,20 @@ class Settings(BaseSettings):
     host: str = Field(default="0.0.0.0", description="Server host")
     port: int = Field(default=8000, description="Server port")
     
+    # SSL/HTTPS Configuration
+    ssl_enabled: bool = Field(
+        default=False,
+        description="Enable HTTPS (requires ssl_certfile and ssl_keyfile)"
+    )
+    ssl_certfile: Optional[str] = Field(
+        default=None,
+        description="Path to SSL certificate file"
+    )
+    ssl_keyfile: Optional[str] = Field(
+        default=None,
+        description="Path to SSL private key file"
+    )
+    
     # Model Caching
     hf_home: Optional[str] = Field(default=None, description="HuggingFace cache directory")
     model_cache_dir: Optional[str] = Field(default=None, description="Model cache directory")

@@ -43,6 +43,12 @@ const SPEAKERS = [
     { name: 'Sohee', description: 'Warm Korean female voice with rich emotion', native_language: 'Korean' }
 ];
 
+// Recording prompts for voice cloning (what users should read aloud)
+const RECORDING_PROMPTS = {
+    en: "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet and is perfect for voice sampling.",
+    'zh-cn': "今天天气真不错，阳光明媚，微风习习。我喜欢在这样的日子里散步，感受大自然的美好。"
+};
+
 // ============================================
 // INTERNATIONALIZATION
 // ============================================
@@ -97,6 +103,8 @@ const i18n = {
         recordingComplete: 'Recording complete!',
         recordingStarted: 'Recording started...',
         microphoneError: 'Could not access microphone',
+        readAloud: '📖 Read this text aloud:',
+        recordingTip: '💡 Speak clearly and naturally at your normal pace',
         // Settings
         settingsTitle: 'Settings',
         settingsDesc: 'Configure API access and view server status.',
@@ -178,6 +186,8 @@ const i18n = {
         recordingComplete: '录音完成！',
         recordingStarted: '开始录音...',
         microphoneError: '无法访问麦克风',
+        readAloud: '📖 请朗读以下文字：',
+        recordingTip: '💡 请用正常语速清晰自然地朗读',
         // Settings
         settingsTitle: '设置',
         settingsDesc: '配置API访问并查看服务器状态。',
@@ -251,6 +261,12 @@ function switchLanguage(lang) {
             el.textContent = t(key);
         }
     });
+
+    // Update recording prompt text
+    const promptText = document.getElementById('vc-prompt-text');
+    if (promptText) {
+        promptText.textContent = RECORDING_PROMPTS[lang] || RECORDING_PROMPTS.en;
+    }
 
     // Update language buttons
     document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -1170,6 +1186,12 @@ function initRecording() {
                 fileSize.textContent = formatFileSize(audioBlob.size);
                 refAudio.src = URL.createObjectURL(audioBlob);
                 preview.classList.add('visible');
+
+                // Auto-fill transcript with the recording prompt
+                const refTextInput = document.getElementById('vc-ref-text');
+                if (refTextInput) {
+                    refTextInput.value = RECORDING_PROMPTS[state.language] || RECORDING_PROMPTS.en;
+                }
 
                 // Stop all tracks
                 stream.getTracks().forEach(track => track.stop());

@@ -63,3 +63,5 @@ output/
 *.tar
 app/models/hub
 app/models/xet
+# SSL certificates
+certs/
