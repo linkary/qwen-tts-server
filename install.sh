@@ -1,9 +1,35 @@
 #!/bin/bash
 # Installation script for Qwen3-TTS Server
 # Run with: bash install.sh
+# Options:
+#   --skip-flash-attn    Skip Flash Attention installation (faster)
+#   --cpu-only           Force CPU-only installation
 # Auto-detects current conda environment, CUDA, and Flash Attention compatibility
 
 set -e  # Exit on error
+
+# Parse arguments
+SKIP_FLASH_ATTN=false
+FORCE_CPU=false
+for arg in "$@"; do
+    case $arg in
+        --skip-flash-attn)
+            SKIP_FLASH_ATTN=true
+            ;;
+        --cpu-only)
+            FORCE_CPU=true
+            ;;
+        --help|-h)
+            echo "Usage: bash install.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --skip-flash-attn    Skip Flash Attention installation (faster)"
+            echo "  --cpu-only           Force CPU-only installation"
+            echo "  --help, -h           Show this help message"
+            exit 0
+            ;;
+    esac
+done
 
 echo "🚀 Qwen3-TTS Server Installation"
 echo "================================"
@@ -41,24 +67,28 @@ echo "🔍 Detecting CUDA availability..."
 CUDA_AVAILABLE=false
 CUDA_VERSION=""
 
-# Method 1: Check nvidia-smi
-if command -v nvidia-smi &> /dev/null; then
-    if nvidia-smi &> /dev/null; then
-        CUDA_AVAILABLE=true
-        CUDA_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -n1 || echo "")
-        echo -e "${GREEN}✓ NVIDIA GPU detected (Driver: ${CUDA_VERSION})${NC}"
+if $FORCE_CPU; then
+    echo -e "${YELLOW}⚠️  CPU-only mode forced via --cpu-only${NC}"
+else
+    # Method 1: Check nvidia-smi
+    if command -v nvidia-smi &> /dev/null; then
+        if nvidia-smi &> /dev/null; then
+            CUDA_AVAILABLE=true
+            CUDA_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -n1 || echo "")
+            echo -e "${GREEN}✓ NVIDIA GPU detected (Driver: ${CUDA_VERSION})${NC}"
+        fi
     fi
-fi
 
-# Method 2: Check nvcc
-if ! $CUDA_AVAILABLE && command -v nvcc &> /dev/null; then
-    CUDA_AVAILABLE=true
-    CUDA_VERSION=$(nvcc --version | grep "release" | sed 's/.*release //' | sed 's/,.*//')
-    echo -e "${GREEN}✓ CUDA Toolkit detected (Version: ${CUDA_VERSION})${NC}"
-fi
+    # Method 2: Check nvcc
+    if ! $CUDA_AVAILABLE && command -v nvcc &> /dev/null; then
+        CUDA_AVAILABLE=true
+        CUDA_VERSION=$(nvcc --version | grep "release" | sed 's/.*release //' | sed 's/,.*//')
+        echo -e "${GREEN}✓ CUDA Toolkit detected (Version: ${CUDA_VERSION})${NC}"
+    fi
 
-if ! $CUDA_AVAILABLE; then
-    echo -e "${YELLOW}⚠️  No CUDA detected - will install CPU-only version${NC}"
+    if ! $CUDA_AVAILABLE; then
+        echo -e "${YELLOW}⚠️  No CUDA detected - will install CPU-only version${NC}"
+    fi
 fi
 echo ""
 
@@ -98,7 +128,9 @@ echo "📥 Step 3/3: Flash Attention (auto-detection)..."
 FLASH_ATTN_COMPATIBLE=false
 FLASH_ATTN_INSTALLED=false
 
-if $CUDA_AVAILABLE; then
+if $SKIP_FLASH_ATTN; then
+    echo -e "${YELLOW}⏭️  Skipping Flash Attention (--skip-flash-attn flag)${NC}"
+elif $CUDA_AVAILABLE; then
     # Check GPU architecture (Ampere or newer required)
     echo "Checking GPU compatibility for Flash Attention..."
     
@@ -125,6 +157,8 @@ else:
     else
         echo -e "${YELLOW}⚠️  Could not detect GPU architecture${NC}"
     fi
+else
+    echo -e "${YELLOW}⏭️  Skipping Flash Attention (no CUDA available)${NC}"
 fi
 
 if $FLASH_ATTN_COMPATIBLE; then
@@ -137,8 +171,6 @@ if $FLASH_ATTN_COMPATIBLE; then
         echo -e "${YELLOW}⚠️  Flash Attention installation failed (this is OK)${NC}"
         echo "   The server will work without it."
     fi
-else
-    echo -e "${YELLOW}⏭️  Skipping Flash Attention (not compatible or no CUDA)${NC}"
 fi
 echo ""
 
