@@ -1,8 +1,12 @@
 #!/bin/bash
 # Installation script for Qwen3-TTS Server
 # Run with: bash install.sh
+# Or with custom env: CONDA_ENV=myenv bash install.sh
 
 set -e  # Exit on error
+
+# Configurable conda environment name (default: qwen-tts)
+CONDA_ENV="${CONDA_ENV:-qwen-tts}"
 
 echo "🚀 Qwen3-TTS Server Installation"
 echo "================================"
@@ -14,14 +18,17 @@ if ! command -v conda &> /dev/null; then
     exit 1
 fi
 
-# Check if learn_ai environment exists
-if ! conda env list | grep -q "learn_ai"; then
-    echo "❌ Error: conda environment 'learn_ai' not found."
-    echo "Please create it first with: conda create -n learn_ai python=3.10"
+# Check if environment exists
+if ! conda env list | grep -q "$CONDA_ENV"; then
+    echo "❌ Error: conda environment '$CONDA_ENV' not found."
+    echo "Please create it first with: conda create -n $CONDA_ENV python=3.12"
+    echo ""
+    echo "Or specify a different environment:"
+    echo "  CONDA_ENV=your_env_name bash install.sh"
     exit 1
 fi
 
-echo "✓ Found conda environment: learn_ai"
+echo "✓ Found conda environment: $CONDA_ENV"
 echo ""
 
 # Detect conda initialization
@@ -34,9 +41,9 @@ else
 fi
 
 # Activate environment
-echo "📦 Activating conda environment: learn_ai"
-conda activate learn_ai || {
-    echo "❌ Failed to activate learn_ai environment"
+echo "📦 Activating conda environment: $CONDA_ENV"
+conda activate "$CONDA_ENV" || {
+    echo "❌ Failed to activate $CONDA_ENV environment"
     exit 1
 }
 
@@ -90,7 +97,7 @@ echo "   - Set API_KEYS for authentication"
 echo "   - Set USE_FLASH_ATTENTION=false if you skipped flash-attn"
 echo ""
 echo "2. Start the server:"
-echo "   conda activate learn_ai"
+echo "   conda activate $CONDA_ENV"
 echo "   python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
 echo ""
 echo "3. Or use the start script:"

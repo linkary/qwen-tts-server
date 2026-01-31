@@ -11,8 +11,9 @@
 ### Method 1: Standard Installation (Recommended)
 
 ```bash
-# Activate your conda environment
-conda activate learn_ai
+# Activate your conda environment (or create one)
+# conda create -n qwen-tts python=3.12
+conda activate <your-env-name>
 
 # Install dependencies in order
 pip install torch>=2.1.0 --index-url https://download.pytorch.org/whl/cu121
@@ -22,7 +23,7 @@ pip install -r requirements.txt
 ### Method 2: CPU-Only Installation
 
 ```bash
-conda activate learn_ai
+conda activate <your-env-name>
 
 # Install CPU-only PyTorch
 pip install torch>=2.1.0 --index-url https://download.pytorch.org/whl/cpu
@@ -37,7 +38,7 @@ Flash Attention significantly improves performance but requires:
 - Patience (compilation takes 5-15 minutes)
 
 ```bash
-conda activate learn_ai
+conda activate <your-env-name>
 
 # Step 1: Install PyTorch with CUDA
 pip install torch>=2.1.0 --index-url https://download.pytorch.org/whl/cu121
@@ -50,6 +51,22 @@ pip install flash-attn>=2.5.0 --no-build-isolation
 ```
 
 **Note:** If flash-attn installation fails, the server will work fine without it. Set `USE_FLASH_ATTENTION=false` in your `.env` file.
+
+## Using the Install Script
+
+For convenience, you can use the install script:
+
+```bash
+# Create environment first
+conda create -n qwen-tts python=3.12
+conda activate qwen-tts
+
+# Run install script (uses CONDA_ENV variable, defaults to 'qwen-tts')
+bash install.sh
+
+# Or specify a custom environment name
+CONDA_ENV=my-custom-env bash install.sh
+```
 
 ## Troubleshooting
 
@@ -106,7 +123,7 @@ sudo apt-get install ffmpeg
 After installation, verify everything works:
 
 ```bash
-conda activate learn_ai
+conda activate <your-env-name>
 python quickstart.py
 ```
 
@@ -136,7 +153,7 @@ USE_FLASH_ATTENTION=false  # Set to true if you installed flash-attn
 ## Running the Server
 
 ```bash
-conda activate learn_ai
+conda activate <your-env-name>
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 

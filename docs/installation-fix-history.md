@@ -36,11 +36,11 @@ Removed flash-attn from main requirements and added clear installation order:
 
 ## Quick Fix for Your Current Issue
 
-Run these commands in your `learn_ai` conda environment:
+Run these commands in your conda environment:
 
 ```bash
-# Activate the conda environment
-conda activate learn_ai
+# Activate your conda environment
+conda activate <your-env-name>
 
 # Step 1: Install PyTorch first
 pip install torch>=2.1.0 --index-url https://download.pytorch.org/whl/cu121
@@ -59,15 +59,22 @@ If flash-attn installation still fails, **that's OK**! Just:
 
 ## Automated Installation
 
-Use the new installation script:
+Use the installation script:
 
 ```bash
-conda activate learn_ai
+# Create and activate environment
+conda create -n qwen-tts python=3.12
+conda activate qwen-tts
+
+# Run install script (defaults to 'qwen-tts' env)
 bash install.sh
+
+# Or specify a custom environment
+CONDA_ENV=my-custom-env bash install.sh
 ```
 
 The script will:
-1. Check for conda and learn_ai environment
+1. Check for conda and the specified environment
 2. Install torch first
 3. Install other dependencies
 4. Optionally install flash-attn (with user confirmation)
@@ -93,7 +100,7 @@ The script will:
 
 ## Recommendation
 
-For development on `learn_ai` environment:
+For development:
 1. **Skip flash-attn** for now - it's not critical
 2. Set `USE_FLASH_ATTENTION=false` in `.env`
 3. Focus on development
@@ -113,7 +120,7 @@ For development on `learn_ai` environment:
 After installation, verify everything works:
 
 ```bash
-conda activate learn_ai
+conda activate <your-env-name>
 python quickstart.py
 ```
 
