@@ -753,6 +753,42 @@ audio::-webkit-media-controls-panel {
     transition: all var(--transition-fast);
 }
 
+/* Recording Prompt */
+.recording-prompt {
+    margin-bottom: var(--space-lg);
+    padding: var(--space-lg);
+    background: linear-gradient(135deg, rgba(0, 245, 212, 0.08), rgba(255, 107, 107, 0.05));
+    border: 1px solid var(--accent-cyan);
+    border-radius: var(--radius-lg);
+}
+
+.recording-prompt-label {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-sm);
+}
+
+.recording-prompt-text {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    padding: var(--space-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+    border-left: 3px solid var(--accent-cyan);
+}
+
+.recording-prompt-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
 /* Recording Controls */
 .recording-section {
     margin-bottom: var(--space-lg);
