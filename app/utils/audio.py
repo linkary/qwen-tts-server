@@ -52,9 +52,36 @@ def load_audio_from_base64(base64_str: str) -> Tuple[np.ndarray, int]:
         base64_str = base64_str.split(",", 1)[1]
     
     audio_bytes = base64.b64decode(base64_str)
-    audio_data, sample_rate = sf.read(io.BytesIO(audio_bytes))
     
-    return audio_data, sample_rate
+    # Try soundfile first (for wav, flac, mp3, etc.)
+    try:
+        audio_data, sample_rate = sf.read(io.BytesIO(audio_bytes))
+        return audio_data, sample_rate
+    except Exception as sf_error:
+        logger.debug(f"soundfile failed, trying pydub conversion: {sf_error}")
+    
+    # If soundfile fails, try pydub (for webm, ogg, m4a, etc.)
+    try:
+        from pydub import AudioSegment
+        
+        # Try to detect format from bytes or assume webm
+        audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
+        
+        # Convert to wav format that soundfile can read
+        wav_buffer = io.BytesIO()
+        audio.export(wav_buffer, format='wav')
+        wav_buffer.seek(0)
+        
+        audio_data, sample_rate = sf.read(wav_buffer)
+        logger.debug(f"Successfully converted audio via pydub: {len(audio_data)} samples @ {sample_rate}Hz")
+        return audio_data, sample_rate
+        
+    except ImportError:
+        logger.error("pydub not installed. Install with: pip install pydub")
+        raise ValueError("Unsupported audio format. Install pydub for WebM support.")
+    except Exception as pydub_error:
+        logger.error(f"pydub conversion also failed: {pydub_error}")
+        raise ValueError(f"Failed to decode audio: {pydub_error}")
 
 
 async def load_audio_from_file(file_content: bytes) -> Tuple[np.ndarray, int]:

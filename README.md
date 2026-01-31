@@ -42,9 +42,7 @@ This script will:
 - Install PyTorch with CUDA
 - Install Flash Attention 2
 - Download all models (~10-12 GB)
-- Configure environment
-
-**See [INSTALL_CUDA.md](INSTALL_CUDA.md) for detailed instructions.**
+- Configure environment**
 
 **Option 2: Manual Installation (All platforms)**
 
@@ -53,7 +51,7 @@ This script will:
 1. **Activate conda environment**
 
 ```bash
-conda activate learn_ai  # or your preferred environment
+conda activate qwen-tts  # or your preferred environment
 ```
 
 2. **Install dependencies in order** (important!)
@@ -173,6 +171,37 @@ Once the server is running, access the interactive API documentation:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI Schema**: http://localhost:8000/openapi.json
+
+## Interactive Demo Page
+
+The built-in demo page provides a rich visual interface for testing all TTS features:
+
+### Custom Voice Tab
+Generate speech using preset speakers with emotional control and style instructions.
+
+![Custom Voice Demo](docs/images/demo_custom_voice.png)
+
+### Voice Design Tab  
+Create custom voices using natural language descriptions.
+
+![Voice Design Demo](docs/images/demo_voice_design.png)
+
+### Voice Clone Tab
+Clone any voice from a reference audio sample with guided recording support.
+
+![Voice Clone Demo](docs/images/demo_voice_clone.png)
+
+### Settings Tab
+Configure API access and monitor server status.
+
+![Settings Demo](docs/images/demo_settings.png)
+
+**Features:**
+- 🌐 Bilingual UI (English / 中文)
+- 🎙️ Built-in voice recording for cloning
+- 💾 Save and reuse voice prompts
+- 📊 Real-time server status monitoring
+- 🎨 Retro-futuristic design
 
 ## API Endpoints
 
