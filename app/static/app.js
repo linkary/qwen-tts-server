@@ -44,6 +44,174 @@ const SPEAKERS = [
 ];
 
 // ============================================
+// INTERNATIONALIZATION
+// ============================================
+const i18n = {
+    en: {
+        // Header
+        title: 'Qwen3-TTS',
+        subtitle: 'Voice Laboratory',
+        // Tabs
+        customVoice: 'Custom Voice',
+        voiceDesign: 'Voice Design',
+        voiceClone: 'Voice Clone',
+        settings: 'Settings',
+        // Custom Voice
+        cvTitle: 'Custom Voice',
+        cvDesc: 'Generate speech using 9 preset speakers with emotional control and style instructions.',
+        textToSynth: 'Text to Synthesize',
+        textPlaceholder: 'Hello, welcome to the Qwen3-TTS Voice Laboratory! This is a demonstration of AI-powered text-to-speech technology.',
+        language: 'Language',
+        selectSpeaker: 'Select Speaker',
+        styleInstruction: 'Style Instruction (Optional)',
+        stylePlaceholder: 'e.g., Speak cheerfully. Calm and soothing...',
+        speed: 'Speed',
+        generateSpeech: 'Generate Speech',
+        generatedAudio: 'Generated Audio',
+        genTime: 'Gen Time',
+        duration: 'Duration',
+        rtf: 'RTF',
+        // Voice Design
+        vdTitle: 'Voice Design',
+        vdDesc: 'Create custom voices using natural language descriptions.',
+        voiceDescription: 'Voice Description',
+        voiceDescPlaceholder: 'Describe the voice you want to create...',
+        examplePrompts: 'Example Prompts',
+        // Voice Clone
+        vcTitle: 'Voice Clone',
+        vcDesc: 'Clone any voice from a reference audio sample.',
+        refAudio: 'Reference Audio',
+        uploadZoneText: 'Drop audio file here or click to upload',
+        uploadZoneHint: 'Supports WAV, MP3, FLAC (max 5MB)',
+        refTranscript: 'Reference Transcript',
+        refTranscriptPlaceholder: 'Enter the exact text spoken in the reference audio...',
+        xVectorMode: 'X-Vector Only Mode',
+        xVectorHint: 'Skip text alignment (faster but lower quality)',
+        savedPrompts: 'Saved Voice Prompts',
+        createPrompt: 'Create Prompt',
+        cacheStatus: 'Cache Status',
+        startRecording: 'Start Recording',
+        stopRecording: 'Stop Recording',
+        recording: 'Recording...',
+        recordedAudio: 'Recorded Audio',
+        recordingComplete: 'Recording complete!',
+        recordingStarted: 'Recording started...',
+        microphoneError: 'Could not access microphone',
+        // Settings
+        settingsTitle: 'Settings',
+        settingsDesc: 'Configure API access and view server status.',
+        apiConfig: 'API Configuration',
+        apiKey: 'API Key',
+        saveApiKey: 'Save API Key',
+        serverStatus: 'Server Status',
+        refreshStatus: 'Refresh',
+        customVoiceModel: 'CustomVoice Model',
+        voiceDesignModel: 'VoiceDesign Model',
+        baseModel: 'Base Model',
+        cacheStats: 'Cache Statistics',
+        refreshCache: 'Refresh',
+        clearCache: 'Clear Cache',
+        enabled: 'Enabled',
+        size: 'Size',
+        hitRate: 'Hit Rate',
+        requests: 'Requests',
+        apiDocs: 'API Documentation',
+        // Toast messages
+        generating: 'Generating audio...',
+        generated: 'Audio generated successfully!',
+        error: 'Error',
+        apiKeySaved: 'API key saved',
+        cacheCleared: 'Cache cleared successfully',
+        noText: 'Please enter text to synthesize',
+        noApiKey: 'Please set your API key in Settings',
+        noVoiceDesc: 'Please enter a voice description',
+        noRefAudio: 'Please upload reference audio or select a saved prompt',
+        noRefText: 'Please enter the reference text or enable X-Vector Only mode'
+    },
+    'zh-cn': {
+        // Header
+        title: 'Qwen3-TTS',
+        subtitle: '语音实验室',
+        // Tabs
+        customVoice: '自定义语音',
+        voiceDesign: '语音设计',
+        voiceClone: '语音克隆',
+        settings: '设置',
+        // Custom Voice
+        cvTitle: '自定义语音',
+        cvDesc: '使用9个预设角色生成语音，支持情感控制和风格指令。',
+        textToSynth: '待合成文本',
+        textPlaceholder: '你好，欢迎来到Qwen3-TTS语音实验室！这是一个AI驱动的文本转语音技术演示。',
+        language: '语言',
+        selectSpeaker: '选择角色',
+        styleInstruction: '风格指令（可选）',
+        stylePlaceholder: '例如：开心地说话，平静舒缓...',
+        speed: '语速',
+        generateSpeech: '生成语音',
+        generatedAudio: '生成的音频',
+        genTime: '生成时间',
+        duration: '时长',
+        rtf: '实时因子',
+        // Voice Design
+        vdTitle: '语音设计',
+        vdDesc: '使用自然语言描述创建自定义语音。',
+        voiceDescription: '语音描述',
+        voiceDescPlaceholder: '描述你想创建的语音...',
+        examplePrompts: '示例提示',
+        // Voice Clone
+        vcTitle: '语音克隆',
+        vcDesc: '从参考音频样本克隆任意语音。',
+        refAudio: '参考音频',
+        uploadZoneText: '拖放音频文件到此处或点击上传',
+        uploadZoneHint: '支持 WAV, MP3, FLAC（最大5MB）',
+        refTranscript: '参考文本',
+        refTranscriptPlaceholder: '输入参考音频中的准确文本内容...',
+        xVectorMode: '仅X向量模式',
+        xVectorHint: '跳过文本对齐（更快但质量较低）',
+        savedPrompts: '已保存的语音提示',
+        createPrompt: '创建提示',
+        cacheStatus: '缓存状态',
+        startRecording: '开始录音',
+        stopRecording: '停止录音',
+        recording: '录音中...',
+        recordedAudio: '录制的音频',
+        recordingComplete: '录音完成！',
+        recordingStarted: '开始录音...',
+        microphoneError: '无法访问麦克风',
+        // Settings
+        settingsTitle: '设置',
+        settingsDesc: '配置API访问并查看服务器状态。',
+        apiConfig: 'API配置',
+        apiKey: 'API密钥',
+        saveApiKey: '保存API密钥',
+        serverStatus: '服务器状态',
+        refreshStatus: '刷新',
+        customVoiceModel: '自定义语音模型',
+        voiceDesignModel: '语音设计模型',
+        baseModel: '基础模型',
+        cacheStats: '缓存统计',
+        refreshCache: '刷新',
+        clearCache: '清除缓存',
+        enabled: '状态',
+        size: '大小',
+        hitRate: '命中率',
+        requests: '请求数',
+        apiDocs: 'API文档',
+        // Toast messages
+        generating: '正在生成音频...',
+        generated: '音频生成成功！',
+        error: '错误',
+        apiKeySaved: 'API密钥已保存',
+        cacheCleared: '缓存已清除',
+        noText: '请输入待合成的文本',
+        noApiKey: '请在设置中设置API密钥',
+        noVoiceDesc: '请输入语音描述',
+        noRefAudio: '请上传参考音频或选择已保存的提示',
+        noRefText: '请输入参考文本或启用仅X向量模式'
+    }
+};
+
+// ============================================
 // STATE
 // ============================================
 
@@ -52,12 +220,43 @@ const DEFAULT_API_KEY = 'your-api-key-1';
 
 const state = {
     apiKey: localStorage.getItem('qwen-tts-api-key') || DEFAULT_API_KEY,
+    language: localStorage.getItem('qwen-tts-lang') || 'en',
     selectedSpeaker: 'Ryan',
     savedPrompts: JSON.parse(localStorage.getItem('qwen-tts-prompts') || '[]'),
     uploadedAudio: null,
     uploadedAudioBase64: null,
     selectedPromptId: null
 };
+
+/**
+ * Translation helper function
+ */
+function t(key) {
+    return i18n[state.language]?.[key] || i18n.en[key] || key;
+}
+
+/**
+ * Switch language and update all UI text
+ */
+function switchLanguage(lang) {
+    state.language = lang;
+    localStorage.setItem('qwen-tts-lang', lang);
+
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = t(key);
+        } else {
+            el.textContent = t(key);
+        }
+    });
+
+    // Update language buttons
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+}
 
 // ============================================
 // UTILITY FUNCTIONS
@@ -310,7 +509,7 @@ async function generateCustomVoice() {
     const btn = document.getElementById('cv-generate-btn');
     btn.classList.add('loading');
     btn.disabled = true;
-    showLoading(true);
+
 
     try {
         const startTime = performance.now();
@@ -349,7 +548,7 @@ async function generateCustomVoice() {
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
-        showLoading(false);
+
     }
 }
 
@@ -380,7 +579,7 @@ async function generateVoiceDesign() {
     const btn = document.getElementById('vd-generate-btn');
     btn.classList.add('loading');
     btn.disabled = true;
-    showLoading(true);
+
 
     try {
         const startTime = performance.now();
@@ -418,7 +617,7 @@ async function generateVoiceDesign() {
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
-        showLoading(false);
+
     }
 }
 
@@ -461,7 +660,7 @@ async function cloneVoice() {
     const btn = document.getElementById('vc-generate-btn');
     btn.classList.add('loading');
     btn.disabled = true;
-    showLoading(true);
+
 
     try {
         const startTime = performance.now();
@@ -501,7 +700,7 @@ async function cloneVoice() {
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
-        showLoading(false);
+
     }
 }
 
@@ -576,7 +775,7 @@ async function generateWithPrompt(text, language, speed) {
     const btn = document.getElementById('vc-generate-btn');
     btn.classList.add('loading');
     btn.disabled = true;
-    showLoading(true);
+
 
     try {
         const startTime = performance.now();
@@ -612,7 +811,7 @@ async function generateWithPrompt(text, language, speed) {
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
-        showLoading(false);
+
     }
 }
 
@@ -927,6 +1126,99 @@ function initFileUpload() {
 }
 
 /**
+ * Initialize voice recording
+ */
+function initRecording() {
+    const recordBtn = document.getElementById('vc-record-btn');
+    const stopBtn = document.getElementById('vc-stop-btn');
+    const indicator = document.getElementById('vc-recording-indicator');
+    const timeDisplay = document.getElementById('vc-record-time');
+    const preview = document.getElementById('vc-upload-preview');
+    const fileName = document.getElementById('vc-file-name');
+    const fileSize = document.getElementById('vc-file-size');
+    const refAudio = document.getElementById('vc-ref-audio');
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordingTimer = null;
+    let recordingSeconds = 0;
+
+    recordBtn.onclick = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            audioChunks = [];
+            recordingSeconds = 0;
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    audioChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' });
+
+                // Convert to base64
+                state.uploadedAudio = audioFile;
+                state.uploadedAudioBase64 = await fileToBase64(audioFile);
+                state.selectedPromptId = null;
+
+                // Update preview
+                fileName.textContent = t('recordedAudio') || 'Recorded Audio';
+                fileSize.textContent = formatFileSize(audioBlob.size);
+                refAudio.src = URL.createObjectURL(audioBlob);
+                preview.classList.add('visible');
+
+                // Stop all tracks
+                stream.getTracks().forEach(track => track.stop());
+
+                showToast(t('recordingComplete') || 'Recording complete!', 'success');
+            };
+
+            mediaRecorder.start();
+
+            // Update UI
+            recordBtn.style.display = 'none';
+            stopBtn.style.display = 'flex';
+            indicator.style.display = 'flex';
+
+            // Start timer
+            recordingTimer = setInterval(() => {
+                recordingSeconds++;
+                const mins = Math.floor(recordingSeconds / 60);
+                const secs = recordingSeconds % 60;
+                timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+                // Auto-stop at 60 seconds
+                if (recordingSeconds >= 60) {
+                    stopBtn.click();
+                }
+            }, 1000);
+
+            showToast(t('recordingStarted') || 'Recording started...', 'info');
+        } catch (error) {
+            console.error('Recording error:', error);
+            showToast(t('microphoneError') || 'Could not access microphone', 'error');
+        }
+    };
+
+    stopBtn.onclick = () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+        }
+
+        // Reset UI
+        clearInterval(recordingTimer);
+        recordBtn.style.display = 'flex';
+        stopBtn.style.display = 'none';
+        indicator.style.display = 'none';
+        timeDisplay.textContent = '0:00';
+    };
+}
+
+/**
  * Initialize toggle switches
  */
 function initToggles() {
@@ -996,6 +1288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initQuickInstructions();
     initExamplePrompts();
     initFileUpload();
+    initRecording();
     initToggles();
     initApiKey();
     initButtons();
@@ -1003,6 +1296,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render components
     renderSpeakerGrid();
     renderSavedPrompts();
+
+    // Initialize language
+    switchLanguage(state.language);
 
     // Initial API checks
     checkHealth();
