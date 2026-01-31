@@ -83,11 +83,32 @@ cp .env.example .env
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Or use the start script:
+Or use the unified run script:
 
 ```bash
-chmod +x start.sh
-./start.sh
+chmod +x run.sh
+./run.sh
+```
+
+**Quick Start Options:**
+```bash
+# Quick start (auto-detects conda environment)
+./run.sh
+
+# First time setup with dependency installation
+./run.sh --setup
+
+# Run with HTTPS
+./run.sh --ssl
+
+# Run with Docker
+./run.sh --docker
+
+# Development mode with auto-reload
+./run.sh --dev
+
+# Show all options
+./run.sh --help
 ```
 
 **See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.**

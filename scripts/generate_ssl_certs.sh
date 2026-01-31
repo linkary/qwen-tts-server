@@ -22,12 +22,30 @@ CN="localhost"
 
 echo "🔐 Generating self-signed SSL certificates for development..."
 
+# Get local IP address (cross-platform)
+if command -v hostname &> /dev/null && hostname -I &> /dev/null; then
+    # Linux
+    LOCAL_IP=$(hostname -I | awk '{print $1}')
+elif command -v ipconfig &> /dev/null; then
+    # macOS
+    LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || echo "")
+else
+    LOCAL_IP=""
+fi
+
+# Build Subject Alternative Names
+if [ -n "$LOCAL_IP" ]; then
+    SAN="DNS:localhost,DNS:*.localhost,IP:127.0.0.1,IP:$LOCAL_IP"
+else
+    SAN="DNS:localhost,DNS:*.localhost,IP:127.0.0.1"
+fi
+
 # Generate private key and self-signed certificate
 openssl req -x509 -nodes -days $DAYS -newkey rsa:2048 \
     -keyout "$CERTS_DIR/key.pem" \
     -out "$CERTS_DIR/cert.pem" \
     -subj "/C=$COUNTRY/ST=$STATE/L=$CITY/O=$ORG/CN=$CN" \
-    -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:$(hostname -I | awk '{print $1}')"
+    -addext "subjectAltName=$SAN"
 
 # Set permissions
 chmod 600 "$CERTS_DIR/key.pem"
