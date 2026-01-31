@@ -14,10 +14,10 @@ echo -e "${GREEN}🧪 Qwen3-TTS Server Test Suite${NC}"
 echo "================================"
 echo ""
 
-# Check if in learn_ai environment
-if [[ "$CONDA_DEFAULT_ENV" != "learn_ai" ]]; then
-    echo -e "${YELLOW}⚠️  Warning: Not in 'learn_ai' conda environment${NC}"
-    echo "   Run: conda activate learn_ai"
+# Check if in a conda environment (any environment is fine)
+if [[ -z "$CONDA_DEFAULT_ENV" ]]; then
+    echo -e "${YELLOW}⚠️  Warning: No conda environment activated${NC}"
+    echo "   Run: conda activate <your-env-name>"
     echo ""
 fi
 
