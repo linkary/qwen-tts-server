@@ -30,6 +30,214 @@ const CONFIG = {
     }
 };
 
+// ============================================
+// API DOCUMENTATION CONTENT
+// ============================================
+const API_DOCS = {
+    'custom-voice': {
+        title: 'Custom Voice API',
+        description: 'Generate speech using one of 9 preset speakers. Supports emotional control via style instructions and multiple languages.',
+        endpoint: {
+            method: 'POST',
+            path: '/api/v1/custom-voice/generate'
+        },
+        requestHeaders: [
+            { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
+            { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestExample: {
+            text: 'Hello, welcome to the Qwen3-TTS demo!',
+            language: 'English',
+            speaker: 'Ryan',
+            instruct: 'Speak cheerfully with energy',
+            speed: 1.0,
+            response_format: 'base64'
+        },
+        responseExample: {
+            audio: '<base64_encoded_audio_data>',
+            sample_rate: 24000
+        },
+        responseHeaders: [
+            { name: 'X-Audio-Duration', description: 'Duration of generated audio in seconds' },
+            { name: 'X-RTF', description: 'Real-time factor (generation_time / audio_duration)' },
+            { name: 'X-Generation-Time', description: 'Time taken to generate audio in seconds' }
+        ],
+        curlExample: `curl -X POST "{{baseUrl}}/api/v1/custom-voice/generate" \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: your-api-key" \\
+  -d '{
+    "text": "Hello, welcome to the demo!",
+    "language": "English",
+    "speaker": "Ryan",
+    "instruct": "Speak cheerfully",
+    "speed": 1.0,
+    "response_format": "base64"
+  }'`
+    },
+    'voice-design': {
+        title: 'Voice Design API',
+        description: 'Create custom voices using natural language descriptions. Describe the voice characteristics you want (age, gender, accent, emotion, etc.).',
+        endpoint: {
+            method: 'POST',
+            path: '/api/v1/voice-design/generate'
+        },
+        requestHeaders: [
+            { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
+            { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestExample: {
+            text: 'Welcome to the future of voice synthesis.',
+            language: 'English',
+            instruct: 'A warm, professional female voice with a slight British accent, speaking confidently and clearly',
+            speed: 1.0,
+            response_format: 'base64'
+        },
+        responseExample: {
+            audio: '<base64_encoded_audio_data>',
+            sample_rate: 24000
+        },
+        responseHeaders: [
+            { name: 'X-Audio-Duration', description: 'Duration of generated audio in seconds' },
+            { name: 'X-RTF', description: 'Real-time factor (generation_time / audio_duration)' },
+            { name: 'X-Generation-Time', description: 'Time taken to generate audio in seconds' }
+        ],
+        curlExample: `curl -X POST "{{baseUrl}}/api/v1/voice-design/generate" \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: your-api-key" \\
+  -d '{
+    "text": "Welcome to the future of voice synthesis.",
+    "language": "English",
+    "instruct": "A warm, professional female voice with clear enunciation",
+    "speed": 1.0,
+    "response_format": "base64"
+  }'`
+    },
+    'voice-clone': {
+        title: 'Voice Clone API',
+        description: 'Clone any voice from a reference audio sample. Provide the audio and transcript to generate new speech in that voice.',
+        endpoint: {
+            method: 'POST',
+            path: '/api/v1/base/clone'
+        },
+        requestHeaders: [
+            { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
+            { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestExample: {
+            text: 'This is my cloned voice speaking new words.',
+            language: 'English',
+            ref_audio_base64: '<base64_encoded_reference_audio>',
+            ref_text: 'The original text spoken in the reference audio.',
+            x_vector_only_mode: false,
+            speed: 1.0,
+            response_format: 'base64'
+        },
+        responseExample: {
+            audio: '<base64_encoded_audio_data>',
+            sample_rate: 24000
+        },
+        responseHeaders: [
+            { name: 'X-Audio-Duration', description: 'Duration of generated audio in seconds' },
+            { name: 'X-RTF', description: 'Real-time factor (generation_time / audio_duration)' },
+            { name: 'X-Cache-Status', description: 'Whether the prompt was cached (HIT/MISS)' }
+        ],
+        curlExample: `curl -X POST "{{baseUrl}}/api/v1/base/clone" \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: your-api-key" \\
+  -d '{
+    "text": "This is my cloned voice.",
+    "language": "English",
+    "ref_audio_base64": "<base64_audio>",
+    "ref_text": "Reference text here",
+    "x_vector_only_mode": false,
+    "speed": 1.0,
+    "response_format": "base64"
+  }'`,
+        additionalEndpoints: [
+            {
+                title: 'Create Reusable Prompt',
+                description: 'Create a cached prompt from reference audio for faster subsequent generations.',
+                endpoint: { method: 'POST', path: '/api/v1/base/create-prompt' },
+                requestExample: {
+                    ref_audio_base64: '<base64_encoded_reference_audio>',
+                    ref_text: 'The original text spoken in the reference audio.',
+                    x_vector_only_mode: false
+                },
+                responseExample: {
+                    prompt_id: 'abc123-def456-ghi789'
+                }
+            },
+            {
+                title: 'Generate with Saved Prompt',
+                description: 'Generate speech using a previously saved voice prompt.',
+                endpoint: { method: 'POST', path: '/api/v1/base/generate-with-prompt' },
+                requestExample: {
+                    text: 'Text to synthesize with the saved voice.',
+                    language: 'English',
+                    prompt_id: 'abc123-def456-ghi789',
+                    response_format: 'base64'
+                }
+            }
+        ]
+    },
+    'settings': {
+        title: 'Health & Cache APIs',
+        description: 'Monitor server health, model status, and manage the voice prompt cache.',
+        endpoint: {
+            method: 'GET',
+            path: '/health'
+        },
+        requestExample: null,
+        responseExample: {
+            status: 'healthy',
+            version: '1.0.0',
+            timestamp: '2024-01-01T00:00:00Z'
+        },
+        additionalEndpoints: [
+            {
+                title: 'Models Health',
+                endpoint: { method: 'GET', path: '/health/models' },
+                responseExample: {
+                    custom_voice_loaded: true,
+                    voice_design_loaded: true,
+                    base_loaded: true
+                }
+            },
+            {
+                title: 'Cache Statistics',
+                endpoint: { method: 'GET', path: '/api/v1/base/cache/stats' },
+                responseExample: {
+                    enabled: true,
+                    size: 5,
+                    max_size: 100,
+                    hit_rate_percent: 75.5,
+                    total_requests: 120
+                }
+            },
+            {
+                title: 'Clear Cache',
+                endpoint: { method: 'POST', path: '/api/v1/base/cache/clear' },
+                responseExample: {
+                    message: 'Cache cleared successfully'
+                }
+            }
+        ],
+        curlExample: `# Check server health
+curl "{{baseUrl}}/health"
+
+# Check models status
+curl "{{baseUrl}}/health/models"
+
+# Get cache statistics
+curl "{{baseUrl}}/api/v1/base/cache/stats" \\
+  -H "X-API-Key: your-api-key"
+
+# Clear cache
+curl -X POST "{{baseUrl}}/api/v1/base/cache/clear" \\
+  -H "X-API-Key: your-api-key"`
+    }
+};
+
 // Speaker data (fallback if API fails)
 const SPEAKERS = [
     { name: 'Vivian', description: 'Bright, slightly edgy young female voice', native_language: 'Chinese' },
@@ -1353,6 +1561,251 @@ function initButtons() {
 }
 
 // ============================================
+// API DOCS PANEL
+// ============================================
+
+/**
+ * Get the currently active tab ID
+ */
+function getActiveTabId() {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    return activeBtn ? activeBtn.dataset.tab : 'custom-voice';
+}
+
+/**
+ * Syntax highlight JSON for display
+ */
+function syntaxHighlightJSON(json) {
+    if (typeof json !== 'string') {
+        json = JSON.stringify(json, null, 2);
+    }
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+                return `<span class="${cls}">${match.slice(0, -1)}</span>:`;
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return `<span class="${cls}">${match}</span>`;
+    });
+}
+
+/**
+ * Copy text to clipboard
+ */
+async function copyToClipboard(text, buttonElement) {
+    try {
+        await navigator.clipboard.writeText(text);
+        buttonElement.textContent = 'Copied!';
+        buttonElement.classList.add('copied');
+        setTimeout(() => {
+            buttonElement.textContent = 'Copy';
+            buttonElement.classList.remove('copied');
+        }, 2000);
+    } catch (err) {
+        showToast('Failed to copy to clipboard', 'error');
+    }
+}
+
+/**
+ * Render API endpoint block
+ */
+function renderEndpointBlock(endpoint, requestHeaders, requestExample, responseExample, description) {
+    let html = '';
+
+    // Endpoint badge
+    html += `
+        <div class="api-endpoint">
+            <span class="api-method ${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+            <span class="api-path">${endpoint.path}</span>
+        </div>
+    `;
+
+    // Description
+    if (description) {
+        html += `<div class="api-description">${description}</div>`;
+    }
+
+    // Request Headers
+    if (requestHeaders && requestHeaders.length > 0) {
+        html += `
+            <div class="api-code-block">
+                <div class="api-code-label">Request Headers</div>
+                <div class="api-headers">
+                    ${requestHeaders.map(h => `
+                        <div class="api-header-item">
+                            <span class="api-header-name">${h.name}</span>
+                            <span class="api-header-value">${h.value} <span style="color:var(--text-muted); font-style:italic;">// ${h.description}</span></span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Request example
+    if (requestExample) {
+        const requestJson = JSON.stringify(requestExample, null, 2);
+        html += `
+            <div class="api-code-block">
+                <div class="api-code-label">Request Body</div>
+                <button class="api-copy-btn" onclick="copyToClipboard(\`${requestJson.replace(/`/g, '\\`')}\`, this)">Copy</button>
+                <pre class="api-code">${syntaxHighlightJSON(requestExample)}</pre>
+            </div>
+        `;
+    }
+
+    // Response example
+    if (responseExample) {
+        html += `
+            <div class="api-code-block">
+                <div class="api-code-label">Response</div>
+                <pre class="api-code">${syntaxHighlightJSON(responseExample)}</pre>
+            </div>
+        `;
+    }
+
+    return html;
+}
+
+/**
+ * Render API docs content for a specific tab
+ */
+function renderApiDocsContent(tabId) {
+    const docs = API_DOCS[tabId];
+    if (!docs) return '';
+
+    const baseUrl = window.location.origin;
+    let html = '';
+
+    // Main section
+    html += `
+        <div class="api-section">
+            <h3 class="api-section-title">${docs.title}</h3>
+            <p class="api-description">${docs.description}</p>
+            ${renderEndpointBlock(docs.endpoint, docs.requestHeaders, docs.requestExample, docs.responseExample)}
+        </div>
+    `;
+
+    // Response headers
+    if (docs.responseHeaders && docs.responseHeaders.length > 0) {
+        html += `
+            <div class="api-section">
+                <h3 class="api-section-title">Response Headers</h3>
+                <div class="api-headers">
+                    ${docs.responseHeaders.map(h => `
+                        <div class="api-header-item">
+                            <span class="api-header-name">${h.name}</span>
+                            <span class="api-header-value">${h.description}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // cURL example
+    if (docs.curlExample) {
+        const curlWithUrl = docs.curlExample.replace(/\{\{baseUrl\}\}/g, baseUrl);
+        html += `
+            <div class="api-section">
+                <h3 class="api-section-title">cURL Example</h3>
+                <div class="api-code-block">
+                    <button class="api-copy-btn" onclick="copyToClipboard(\`${curlWithUrl.replace(/`/g, '\\`')}\`, this)">Copy</button>
+                    <pre class="api-code">${curlWithUrl}</pre>
+                </div>
+            </div>
+        `;
+    }
+
+    // Additional endpoints
+    if (docs.additionalEndpoints && docs.additionalEndpoints.length > 0) {
+        docs.additionalEndpoints.forEach(ep => {
+            html += `
+                <div class="api-section">
+                    <h3 class="api-section-title">${ep.title}</h3>
+                    ${renderEndpointBlock(ep.endpoint, ep.requestHeaders, ep.requestExample, ep.responseExample, ep.description)}
+                </div>
+            `;
+        });
+    }
+
+    return html;
+}
+
+/**
+ * Update API docs panel content
+ */
+function updateApiDocsPanel() {
+    const content = document.getElementById('api-docs-content');
+    const tabId = getActiveTabId();
+    content.innerHTML = renderApiDocsContent(tabId);
+}
+
+/**
+ * Toggle API docs panel
+ */
+function toggleApiDocsPanel(forceOpen = null) {
+    const panel = document.getElementById('api-docs-panel');
+    const toggle = document.getElementById('api-docs-toggle');
+
+    const isOpen = forceOpen !== null ? forceOpen : !panel.classList.contains('open');
+
+    panel.classList.toggle('open', isOpen);
+    toggle.classList.toggle('open', isOpen);
+
+    if (isOpen) {
+        updateApiDocsPanel();
+    }
+
+    // Save state to localStorage
+    localStorage.setItem('qwen-tts-api-docs-open', isOpen ? 'true' : 'false');
+}
+
+/**
+ * Initialize API docs panel
+ */
+function initApiDocsPanel() {
+    const toggle = document.getElementById('api-docs-toggle');
+    const closeBtn = document.getElementById('api-docs-close');
+
+    // Toggle button click
+    toggle.onclick = () => toggleApiDocsPanel();
+
+    // Close button click
+    closeBtn.onclick = () => toggleApiDocsPanel(false);
+
+    // Update content when tab changes (extend existing tab click handlers)
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        const existingHandler = btn.onclick;
+        btn.onclick = (e) => {
+            if (existingHandler) existingHandler.call(btn, e);
+            // Update API docs if panel is open
+            const panel = document.getElementById('api-docs-panel');
+            if (panel.classList.contains('open')) {
+                setTimeout(updateApiDocsPanel, 50);
+            }
+        };
+    });
+
+    // Restore panel state from localStorage
+    const wasOpen = localStorage.getItem('qwen-tts-api-docs-open') === 'true';
+    if (wasOpen) {
+        toggleApiDocsPanel(true);
+    }
+
+    // Initial content render
+    updateApiDocsPanel();
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 
@@ -1368,6 +1821,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initToggles();
     initApiKey();
     initButtons();
+    initApiDocsPanel();
 
     // Render components
     renderSpeakerGrid();
@@ -1383,3 +1837,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('🎙️ Qwen3-TTS Demo initialized');
 });
+
