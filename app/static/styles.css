@@ -1424,7 +1424,13 @@ audio::-webkit-media-controls-panel {
 }
 
 .api-docs-toggle.open {
-    right: 420px;
+    right: 600px;
+}
+
+@media (max-width: 768px) {
+    .api-docs-toggle.open {
+        display: none;
+    }
 }
 
 .api-docs-toggle-icon {
@@ -1436,9 +1442,9 @@ audio::-webkit-media-controls-panel {
 /* API Docs Panel */
 .api-docs-panel {
     position: fixed;
-    right: -420px;
+    right: -600px;
     top: 0;
-    width: 420px;
+    width: 600px;
     height: 100vh;
     background: var(--bg-surface);
     border-left: 1px solid var(--border-subtle);
@@ -1447,6 +1453,13 @@ audio::-webkit-media-controls-panel {
     flex-direction: column;
     transition: right var(--transition-medium);
     box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .api-docs-panel {
+        width: 100%;
+        right: -100%;
+    }
 }
 
 .api-docs-panel.open {
@@ -1538,6 +1551,45 @@ audio::-webkit-media-controls-panel {
 }
 
 /* API Endpoint Badge */
+/* Card Sub-tabs */
+.card-sub-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: var(--space-md);
+}
+
+.card-sub-tab {
+    flex: 1;
+    padding: var(--space-sm);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.card-sub-tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.card-sub-tab.active {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.card-tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.card-tab-content.active {
+    display: block;
+}
+
 .api-endpoint {
     display: flex;
     align-items: center;
@@ -1678,6 +1730,35 @@ audio::-webkit-media-controls-panel {
     background: rgba(0, 245, 212, 0.05);
     border-left: 3px solid var(--accent-cyan);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* API Sub-tabs */
+.api-sub-tabs {
+    display: flex;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.api-sub-tab {
+    padding: var(--space-xs) var(--space-md);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.8rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-display);
+}
+
+.api-sub-tab:hover {
+    color: var(--text-primary);
+}
+
+.api-sub-tab.active {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
 }
 
 /* API Parameters Table */

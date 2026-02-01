@@ -131,44 +131,50 @@ const API_DOCS = {
     },
     'voice-clone': {
         title: 'Voice Clone API',
-        description: 'Clone any voice from a reference audio sample. Provide the audio and transcript to generate new speech in that voice.',
-        endpoint: {
-            method: 'POST',
-            path: '/api/v1/base/clone'
-        },
-        docsAnchor: '#/base/clone_voice_api_v1_base_clone_post',
-        requestHeaders: [
-            { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
-            { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
-        ],
-        requestParams: [
-            { name: 'text', type: 'string', required: true, description: 'Text to synthesize' },
-            { name: 'ref_audio_base64', type: 'string', required: true, description: 'Reference audio (base64 encoded)' },
-            { name: 'ref_text', type: 'string', required: false, description: 'Transcript of reference audio (required if x_vector_only_mode is false)' },
-            { name: 'language', type: 'string', required: false, description: 'Language code or "Auto"' },
-            { name: 'x_vector_only_mode', type: 'boolean', required: false, description: 'Use X-vector only (no transcript)' },
-            { name: 'speed', type: 'number', required: false, description: 'Speech speed (0.5 to 2.0)' },
-            { name: 'response_format', type: 'string', required: false, description: 'Audio format' }
-        ],
-        requestExample: {
-            text: 'This is my cloned voice speaking new words.',
-            language: 'English',
-            ref_audio_base64: '<base64_encoded_reference_audio>',
-            ref_text: 'The original text spoken in the reference audio.',
-            x_vector_only_mode: false,
-            speed: 1.0,
-            response_format: 'base64'
-        },
-        responseExample: {
-            audio: '<base64_encoded_audio_data>',
-            sample_rate: 24000
-        },
-        responseHeaders: [
-            { name: 'X-Audio-Duration', description: 'Duration of generated audio in seconds' },
-            { name: 'X-RTF', description: 'Real-time factor (generation_time / audio_duration)' },
-            { name: 'X-Cache-Status', description: 'Whether the prompt was cached (HIT/MISS)' }
-        ],
-        curlExample: `curl -X POST "{{baseUrl}}/api/v1/base/clone" \\
+        description: 'Clone any voice from a reference audio sample. Choose a method below:',
+        subTabs: [
+            {
+                id: 'vc-clone',
+                label: 'Clone (Base)',
+                title: 'Voice Clone API',
+                description: 'Clone any voice from a reference audio sample. Provide the audio and transcript to generate new speech in that voice.',
+                endpoint: {
+                    method: 'POST',
+                    path: '/api/v1/base/clone'
+                },
+                docsAnchor: '#/base/clone_voice_api_v1_base_clone_post',
+                requestHeaders: [
+                    { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
+                    { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+                ],
+                requestParams: [
+                    { name: 'text', type: 'string', required: true, description: 'Text to synthesize' },
+                    { name: 'ref_audio_base64', type: 'string', required: true, description: 'Reference audio (base64 encoded)' },
+                    { name: 'ref_text', type: 'string', required: false, description: 'Transcript of reference audio (required if x_vector_only_mode is false)' },
+                    { name: 'language', type: 'string', required: false, description: 'Language code or "Auto"' },
+                    { name: 'x_vector_only_mode', type: 'boolean', required: false, description: 'Use X-vector only (no transcript)' },
+                    { name: 'speed', type: 'number', required: false, description: 'Speech speed (0.5 to 2.0)' },
+                    { name: 'response_format', type: 'string', required: false, description: 'Audio format' }
+                ],
+                requestExample: {
+                    text: 'This is my cloned voice speaking new words.',
+                    language: 'English',
+                    ref_audio_base64: '<base64_encoded_reference_audio>',
+                    ref_text: 'The original text spoken in the reference audio.',
+                    x_vector_only_mode: false,
+                    speed: 1.0,
+                    response_format: 'base64'
+                },
+                responseExample: {
+                    audio: '<base64_encoded_audio_data>',
+                    sample_rate: 24000
+                },
+                responseHeaders: [
+                    { name: 'X-Audio-Duration', description: 'Duration of generated audio in seconds' },
+                    { name: 'X-RTF', description: 'Real-time factor (generation_time / audio_duration)' },
+                    { name: 'X-Cache-Status', description: 'Whether the prompt was cached (HIT/MISS)' }
+                ],
+                curlExample: `curl -X POST "{{baseUrl}}/api/v1/base/clone" \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: your-api-key" \\
   -d '{
@@ -179,9 +185,11 @@ const API_DOCS = {
     "x_vector_only_mode": false,
     "speed": 1.0,
     "response_format": "base64"
-  }'`,
-        additionalEndpoints: [
+  }'`
+            },
             {
+                id: 'vc-upload',
+                label: 'Upload Audio',
                 title: 'Upload Reference Audio',
                 description: 'Upload an audio file to get its base64 string. Use this if you want to use a file instead of raw base64.',
                 endpoint: { method: 'POST', path: '/api/v1/base/upload-ref-audio' },
@@ -204,6 +212,8 @@ const API_DOCS = {
   -F "file=@/path/to/your/audio.wav"`
             },
             {
+                id: 'vc-create-prompt',
+                label: 'Create Prompt',
                 title: 'Create Reusable Prompt',
                 description: 'Create a cached prompt from reference audio for faster subsequent generations.',
                 endpoint: { method: 'POST', path: '/api/v1/base/create-prompt' },
@@ -217,6 +227,8 @@ const API_DOCS = {
                 }
             },
             {
+                id: 'vc-gen-prompt',
+                label: 'Use Prompt',
                 title: 'Generate with Saved Prompt',
                 description: 'Generate speech using a previously saved voice prompt.',
                 endpoint: { method: 'POST', path: '/api/v1/base/generate-with-prompt' },
@@ -491,7 +503,9 @@ const state = {
     selectedSpeaker: 'Ryan',
     savedPrompts: JSON.parse(localStorage.getItem('qwen-tts-prompts') || '[]'),
     uploadedAudio: null,
-    uploadedAudioBase64: null,
+    uploadedAudioBase64: null, // Legacy/Shared? Replaced by specific below
+    uploadedFileBase64: null,
+    recordedAudioBase64: null,
     selectedPromptId: null
 };
 
@@ -968,15 +982,30 @@ async function cloneVoice() {
         return;
     }
 
-    // Check if we're using a saved prompt
+    // Check if use saved prompt
     if (state.selectedPromptId) {
         return generateWithPrompt(text, language, speed);
     }
 
-    // Check for uploaded audio
-    if (!state.uploadedAudioBase64) {
-        showToast('Please upload reference audio or select a saved prompt', 'warning');
-        return;
+    // Determine active audio source
+    let audioBase64 = null;
+    // Check if Upload tab is active (default)
+    const uploadTabBtn = document.querySelector('.card-sub-tab[data-target="vc-tab-upload"]');
+    const isUploadTab = uploadTabBtn && uploadTabBtn.classList.contains('active');
+
+    if (isUploadTab) {
+        audioBase64 = state.uploadedFileBase64;
+        if (!audioBase64) {
+            showToast('Please upload reference audio', 'warning');
+            return;
+        }
+    } else {
+        // Recording tab
+        audioBase64 = state.recordedAudioBase64;
+        if (!audioBase64) {
+            showToast('Please record reference audio', 'warning');
+            return;
+        }
     }
 
     if (!xVectorOnly && !refText) {
@@ -998,7 +1027,7 @@ async function cloneVoice() {
             body: JSON.stringify({
                 text,
                 language,
-                ref_audio_base64: state.uploadedAudioBase64,
+                ref_audio_base64: audioBase64,
                 ref_text: xVectorOnly ? null : refText,
                 x_vector_only_mode: xVectorOnly,
                 speed,
@@ -1038,9 +1067,25 @@ async function createVoicePrompt() {
     const refText = document.getElementById('vc-ref-text').value.trim();
     const xVectorOnly = document.getElementById('vc-xvector-toggle').classList.contains('active');
 
-    if (!state.uploadedAudioBase64) {
-        showToast('Please upload reference audio first', 'warning');
-        return;
+    // Determine active audio source
+    let audioBase64 = null;
+    // Check if Upload tab is active (default)
+    const uploadTabBtn = document.querySelector('.card-sub-tab[data-target="vc-tab-upload"]');
+    const isUploadTab = uploadTabBtn && uploadTabBtn.classList.contains('active');
+
+    if (isUploadTab) {
+        audioBase64 = state.uploadedFileBase64;
+        if (!audioBase64) {
+            showToast('Please upload reference audio first', 'warning');
+            return;
+        }
+    } else {
+        // Recording tab
+        audioBase64 = state.recordedAudioBase64;
+        if (!audioBase64) {
+            showToast('Please record reference audio first', 'warning');
+            return;
+        }
     }
 
     if (!xVectorOnly && !refText) {
@@ -1062,7 +1107,7 @@ async function createVoicePrompt() {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({
-                ref_audio_base64: state.uploadedAudioBase64,
+                ref_audio_base64: audioBase64,
                 ref_text: xVectorOnly ? null : refText,
                 x_vector_only_mode: xVectorOnly
             })
@@ -1321,6 +1366,30 @@ function initTabs() {
 }
 
 /**
+ * Initialize Voice Clone sub-tabs (Upload vs Record)
+ */
+function initVoiceCloneTabs() {
+    const tabs = document.querySelectorAll('.card-sub-tab');
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            // Deactivate all siblings
+            tab.parentElement.querySelectorAll('.card-sub-tab').forEach(t => t.classList.remove('active'));
+            // Activate self
+            tab.classList.add('active');
+
+            // Hide/Show content
+            const targetId = tab.dataset.target;
+            const card = tab.closest('.card'); // Correct scoping to card
+            const contents = card.querySelectorAll('.card-tab-content');
+
+            contents.forEach(c => c.classList.remove('active'));
+            const target = document.getElementById(targetId);
+            if (target) target.classList.add('active');
+        };
+    });
+}
+
+/**
  * Initialize character counters
  */
 function initCharCounters() {
@@ -1415,8 +1484,24 @@ function initFileUpload() {
 
     // File input change
     input.onchange = async () => {
-        if (input.files[0]) {
-            await handleAudioUpload(input.files[0]);
+        const file = input.files[0];
+        if (!file) return;
+
+        try {
+            state.uploadedFileBase64 = await fileToBase64(file);
+            state.uploadedAudioBase64 = state.uploadedFileBase64; // Keep legacy sync for now
+            state.selectedPromptId = null; // Clear selected prompt
+
+            // Update preview
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            refAudio.src = URL.createObjectURL(file);
+            preview.classList.add('visible');
+
+            renderSavedPrompts(); // Update selection
+            showToast('Audio uploaded successfully', 'success');
+        } catch (error) {
+            showToast('Failed to process audio file', 'error');
         }
     };
 
@@ -1489,14 +1574,25 @@ function initRecording() {
 
                 // Convert to base64
                 state.uploadedAudio = audioFile;
-                state.uploadedAudioBase64 = await fileToBase64(audioFile);
+                state.recordedAudioBase64 = await fileToBase64(audioFile);
                 state.selectedPromptId = null;
 
-                // Update preview
-                fileName.textContent = t('recordedAudio') || 'Recorded Audio';
-                fileSize.textContent = formatFileSize(audioBlob.size);
-                refAudio.src = URL.createObjectURL(audioBlob);
-                preview.classList.add('visible');
+                // Update preview (use dedicated recording preview elements)
+                // Assuming elements with IDs vc-record-preview, vc-record-name, vc-record-size, vc-record-audio exist
+                const recordPreview = document.getElementById('vc-record-preview');
+                const recordName = document.getElementById('vc-record-name');
+                const recordSize = document.getElementById('vc-record-size');
+                const recorAudio = document.getElementById('vc-record-audio');
+
+                if (recordPreview) {
+                    recordName.textContent = t('recordedAudio') || 'Recorded Audio';
+                    recordSize.textContent = formatFileSize(audioBlob.size);
+                    recorAudio.src = URL.createObjectURL(audioBlob);
+                    recordPreview.classList.add('visible');
+                } else {
+                    // Fallback if elements missing (should not happen with updated HTML)
+                    console.warn('Recording preview elements not found');
+                }
 
                 // Auto-fill transcript with the recording prompt
                 const refTextInput = document.getElementById('vc-ref-text');
@@ -1760,6 +1856,32 @@ function renderEndpointBlock(endpoint, docsAnchor, requestHeaders, requestParams
 }
 
 /**
+ * Switch between API sub-tabs
+ */
+function switchApiSubTab(tabId, btnElement) {
+    // Hide all contents in this container
+    const container = btnElement.closest('.api-content-wrapper'); // We might need a wrapper if we want to scope it
+    // Actually simpler: finds sibling .api-sub-tab-content elements?
+    // No, ids are unique.
+
+    // Find parent container of tabs to find siblings
+    const tabsContainer = btnElement.parentElement;
+
+    // Deactivate all tabs
+    tabsContainer.querySelectorAll('.api-sub-tab').forEach(t => t.classList.remove('active'));
+    // Activate clicked tab
+    btnElement.classList.add('active');
+
+    // Hide all content blocks that belong to these tabs
+    // We can traverse up to the common parent and find content divs
+    const parent = tabsContainer.parentElement;
+    parent.querySelectorAll('.api-sub-tab-content').forEach(c => c.style.display = 'none');
+
+    // Show target content
+    document.getElementById(tabId).style.display = 'block';
+}
+
+/**
  * Render API docs content for a specific tab
  */
 function renderApiDocsContent(tabId) {
@@ -1769,6 +1891,70 @@ function renderApiDocsContent(tabId) {
     const baseUrl = window.location.origin;
     let html = '';
 
+    // Handle Sub-tabs
+    if (docs.subTabs) {
+        html += `<div class="api-description" style="margin-bottom: 1rem;">${docs.description}</div>`;
+
+        // Tab Navigation
+        html += `<div class="api-sub-tabs">`;
+        docs.subTabs.forEach((tab, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            html += `<button class="api-sub-tab ${isActive}" onclick="switchApiSubTab('${tab.id}', this)">${tab.label}</button>`;
+        });
+        html += `</div>`;
+
+        // Tab Contents
+        docs.subTabs.forEach((tab, index) => {
+            const display = index === 0 ? 'block' : 'none';
+            html += `<div id="${tab.id}" class="api-sub-tab-content" style="display: ${display};">`;
+
+            // Content
+            html += `
+                <div class="api-section">
+                    <h3 class="api-section-title">${tab.title}</h3>
+                    <p class="api-description">${tab.description}</p>
+                    ${renderEndpointBlock(tab.endpoint, tab.docsAnchor, tab.requestHeaders, tab.requestParams, tab.requestExample, tab.responseExample)}
+                </div>
+            `;
+
+            // Response Headers
+            if (tab.responseHeaders && tab.responseHeaders.length > 0) {
+                html += `
+                    <div class="api-section">
+                        <h3 class="api-section-title">Response Headers</h3>
+                        <div class="api-headers">
+                            ${tab.responseHeaders.map(h => `
+                                <div class="api-header-item">
+                                    <span class="api-header-name">${h.name}</span>
+                                    <span class="api-header-value">${h.description}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // cURL Example
+            if (tab.curlExample) {
+                const curlWithUrl = tab.curlExample.replace(/\{\{baseUrl\}\}/g, baseUrl);
+                html += `
+                    <div class="api-section">
+                        <h3 class="api-section-title">cURL Example</h3>
+                        <div class="api-code-block">
+                            <button class="api-copy-btn" onclick="copyToClipboard(\`${curlWithUrl.replace(/`/g, '\\`')}\`, this)">Copy</button>
+                            <pre class="api-code">${curlWithUrl}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+        });
+
+        return html;
+    }
+
+    // Default Rendering (Single Page) - KEEP EXISTING LOGIC
     // Main section
     html += `
         <div class="api-section">
@@ -1903,6 +2089,7 @@ function initApiDocsPanel() {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize UI components
     initTabs();
+    initVoiceCloneTabs();
     initCharCounters();
     initSpeedSliders();
     initQuickInstructions();

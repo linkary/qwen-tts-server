@@ -290,55 +290,78 @@
                                 <h3 class="card-title">Reference Audio</h3>
                             </div>
 
-                            <!-- Recording Prompt -->
-                            <div class="recording-prompt" id="vc-recording-prompt">
-                                <div class="recording-prompt-label" data-i18n="readAloud">📖 Read this text aloud:</div>
-                                <div class="recording-prompt-text" id="vc-prompt-text">
-                                    The quick brown fox jumps over the lazy dog. This sentence contains every letter of
-                                    the alphabet and is perfect for voice sampling.
-                                </div>
-                                <div class="recording-prompt-hint" data-i18n="recordingTip">💡 Speak clearly and
-                                    naturally at your normal pace</div>
+                            <!-- New Tab Navigation -->
+                            <div class="card-sub-tabs">
+                                <button class="card-sub-tab active" data-target="vc-tab-upload">Upload File</button>
+                                <button class="card-sub-tab" data-target="vc-tab-record">Microphone</button>
                             </div>
 
-                            <!-- Recording Controls -->
-                            <div class="recording-section">
-                                <div class="recording-controls">
-                                    <button class="btn btn-record" id="vc-record-btn">
-                                        <span class="record-icon">🎙️</span>
-                                        <span data-i18n="startRecording">Start Recording</span>
-                                    </button>
-                                    <button class="btn btn-stop-record" id="vc-stop-btn" style="display: none;">
-                                        <span>⏹️</span>
-                                        <span data-i18n="stopRecording">Stop Recording</span>
-                                    </button>
+                            <!-- Upload Tab Content -->
+                            <div id="vc-tab-upload" class="card-tab-content active">
+                                <!-- Upload Zone -->
+                                <div class="upload-zone" id="vc-upload-zone">
+                                    <div class="upload-zone-icon">📁</div>
+                                    <div class="upload-zone-text" data-i18n="uploadZoneText">Drop audio file here or
+                                        click
+                                        to upload</div>
+                                    <div class="upload-zone-hint" data-i18n="uploadZoneHint">Supports WAV, MP3, FLAC
+                                        (max
+                                        5MB, 60s)</div>
+                                    <input type="file" id="vc-file-input" accept="audio/*" hidden>
                                 </div>
-                                <div class="recording-indicator" id="vc-recording-indicator" style="display: none;">
-                                    <div class="recording-dot"></div>
-                                    <span data-i18n="recording">Recording...</span>
-                                    <span id="vc-record-time">0:00</span>
+
+                                <!-- Upload/Recording Preview -->
+                                <div class="upload-preview" id="vc-upload-preview">
+                                    <div class="upload-file-info">
+                                        <span class="upload-file-name" id="vc-file-name">reference.wav</span>
+                                        <span class="upload-file-size" id="vc-file-size">1.2 MB</span>
+                                    </div>
+                                    <audio controls id="vc-ref-audio" style="width: 100%;"></audio>
                                 </div>
                             </div>
 
-                            <div class="divider-text"><span>or</span></div>
-
-                            <!-- Upload Zone -->
-                            <div class="upload-zone" id="vc-upload-zone">
-                                <div class="upload-zone-icon">📁</div>
-                                <div class="upload-zone-text" data-i18n="uploadZoneText">Drop audio file here or click
-                                    to upload</div>
-                                <div class="upload-zone-hint" data-i18n="uploadZoneHint">Supports WAV, MP3, FLAC (max
-                                    5MB, 60s)</div>
-                                <input type="file" id="vc-file-input" accept="audio/*" hidden>
-                            </div>
-
-                            <!-- Upload/Recording Preview -->
-                            <div class="upload-preview" id="vc-upload-preview">
-                                <div class="upload-file-info">
-                                    <span class="upload-file-name" id="vc-file-name">reference.wav</span>
-                                    <span class="upload-file-size" id="vc-file-size">1.2 MB</span>
+                            <!-- Record Tab Content -->
+                            <div id="vc-tab-record" class="card-tab-content">
+                                <!-- Recording Prompt -->
+                                <div class="recording-prompt" id="vc-recording-prompt">
+                                    <div class="recording-prompt-label" data-i18n="readAloud">📖 Read this text aloud:
+                                    </div>
+                                    <div class="recording-prompt-text" id="vc-prompt-text">
+                                        The quick brown fox jumps over the lazy dog. This sentence contains every letter
+                                        of
+                                        the alphabet and is perfect for voice sampling.
+                                    </div>
+                                    <div class="recording-prompt-hint" data-i18n="recordingTip">💡 Speak clearly and
+                                        naturally at your normal pace</div>
                                 </div>
-                                <audio controls id="vc-ref-audio" style="width: 100%;"></audio>
+
+                                <!-- Recording Controls -->
+                                <div class="recording-section">
+                                    <div class="recording-controls">
+                                        <button class="btn btn-record" id="vc-record-btn">
+                                            <span class="record-icon">🎙️</span>
+                                            <span data-i18n="startRecording">Start Recording</span>
+                                        </button>
+                                        <button class="btn btn-stop-record" id="vc-stop-btn" style="display: none;">
+                                            <span>⏹️</span>
+                                            <span data-i18n="stopRecording">Stop Recording</span>
+                                        </button>
+                                    </div>
+                                    <div class="recording-indicator" id="vc-recording-indicator" style="display: none;">
+                                        <div class="recording-dot"></div>
+                                        <span data-i18n="recording">Recording...</span>
+                                        <span id="vc-record-time">0:00</span>
+                                    </div>
+                                </div>
+
+                                <!-- Recording Preview -->
+                                <div class="upload-preview" id="vc-record-preview">
+                                    <div class="upload-file-info">
+                                        <span class="upload-file-name" id="vc-record-name">recording.webm</span>
+                                        <span class="upload-file-size" id="vc-record-size">0 KB</span>
+                                    </div>
+                                    <audio controls id="vc-record-audio" style="width: 100%;"></audio>
+                                </div>
                             </div>
 
                             <!-- Reference Text -->
@@ -360,8 +383,13 @@
 
                             <!-- Create Prompt Button -->
                             <button class="btn btn-secondary" id="vc-create-prompt-btn" style="width: 100%;">
-                                Create Reusable Prompt
+                                Save to Library (Optional)
                             </button>
+                            <p
+                                style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-xs); margin-bottom: var(--space-md);">
+                                Save this voice to the list below for faster reuse later. <br>
+                                Not required for immediate generation.
+                            </p>
 
                             <!-- Saved Prompts -->
                             <div class="saved-prompts" id="vc-saved-prompts">
