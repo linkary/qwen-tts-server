@@ -124,13 +124,25 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=[
+        "*",  # Configure appropriately for production
+        "http://localhost:5173",  # Vite dev server
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount static files for demo page
+# Mount React app static assets (built frontend)
+react_dist_dir = Path(__file__).parent.parent / "frontend" / "dist"
+if react_dist_dir.exists():
+    # Mount assets folder for CSS/JS bundles
+    assets_dir = react_dist_dir / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="react-assets")
+        logger.info(f"React assets mounted from {assets_dir}")
+
+# Mount static files for legacy demo page
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
@@ -143,22 +155,37 @@ app.include_router(voice_design.router)
 app.include_router(base.router)
 
 
-@app.get("/demo")
-async def demo_page():
-    """Serve the interactive demo page"""
+@app.get("/demo-legacy")
+async def demo_legacy():
+    """Serve the legacy demo page"""
     demo_file = Path(__file__).parent / "static" / "index.html"
     if demo_file.exists():
         return FileResponse(demo_file, media_type="text/html")
-    return {"error": "Demo page not found", "hint": "Static files may not be installed"}
+    return {"error": "Legacy demo page not found"}
+
+
+@app.get("/demo")
+async def demo_page():
+    """Redirect /demo to root (React app)"""
+    return FileResponse(
+        Path(__file__).parent.parent / "frontend" / "dist" / "index.html",
+        media_type="text/html"
+    )
 
 
 @app.get("/")
 async def root():
-    """Root endpoint with API information"""
+    """Serve React app or API information"""
+    react_index = Path(__file__).parent.parent / "frontend" / "dist" / "index.html"
+    if react_index.exists():
+        return FileResponse(react_index, media_type="text/html")
+    
+    # Fallback to API info if React app not built
     return {
         "name": "Qwen3-TTS API Server",
         "version": __version__,
-        "demo": "/demo",
+        "message": "React app not built. Run 'npm run build' in frontend/ directory",
+        "demo_legacy": "/demo-legacy",
         "docs": "/docs",
         "redoc": "/redoc",
         "openapi": "/openapi.json",
