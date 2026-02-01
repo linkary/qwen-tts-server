@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useCallback, ReactNode, use
 import { DEFAULT_API_KEY } from '../config/constants';
 import type { VoicePrompt } from '../types';
 
+export type TabId = 'custom-voice' | 'voice-design' | 'voice-clone' | 'settings';
+
 interface AppState {
   apiKey: string;
   selectedSpeaker: string;
@@ -9,6 +11,8 @@ interface AppState {
   uploadedFileBase64: string | null;
   recordedAudioBase64: string | null;
   selectedPromptId: string | null;
+  apiDocsOpen: boolean;
+  activeTab: TabId;
 }
 
 interface AppContextType extends AppState {
@@ -19,6 +23,9 @@ interface AppContextType extends AppState {
   setUploadedFileBase64: (base64: string | null) => void;
   setRecordedAudioBase64: (base64: string | null) => void;
   setSelectedPromptId: (id: string | null) => void;
+  setApiDocsOpen: (open: boolean) => void;
+  toggleApiDocs: () => void;
+  setActiveTab: (tab: TabId) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -42,6 +49,12 @@ export function AppProvider({ children }: AppProviderProps) {
   const [uploadedFileBase64, setUploadedFileBase64] = useState<string | null>(null);
   const [recordedAudioBase64, setRecordedAudioBase64] = useState<string | null>(null);
   const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
+  
+  const [apiDocsOpen, setApiDocsOpenState] = useState<boolean>(() => {
+    return localStorage.getItem('qwen-tts-api-docs-open') === 'true';
+  });
+  
+  const [activeTab, setActiveTab] = useState<TabId>('custom-voice');
 
   // Persist API key
   useEffect(() => {
@@ -52,6 +65,11 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     localStorage.setItem('qwen-tts-prompts', JSON.stringify(savedPrompts));
   }, [savedPrompts]);
+  
+  // Persist API docs open state
+  useEffect(() => {
+    localStorage.setItem('qwen-tts-api-docs-open', apiDocsOpen.toString());
+  }, [apiDocsOpen]);
 
   const setApiKey = useCallback((key: string) => {
     setApiKeyState(key);
@@ -65,6 +83,14 @@ export function AppProvider({ children }: AppProviderProps) {
     setSavedPrompts(prev => prev.filter(p => p.id !== id));
     setSelectedPromptId(prev => prev === id ? null : prev);
   }, []);
+  
+  const setApiDocsOpen = useCallback((open: boolean) => {
+    setApiDocsOpenState(open);
+  }, []);
+  
+  const toggleApiDocs = useCallback(() => {
+    setApiDocsOpenState(prev => !prev);
+  }, []);
 
   return (
     <AppContext.Provider
@@ -75,6 +101,8 @@ export function AppProvider({ children }: AppProviderProps) {
         uploadedFileBase64,
         recordedAudioBase64,
         selectedPromptId,
+        apiDocsOpen,
+        activeTab,
         setApiKey,
         setSelectedSpeaker,
         addSavedPrompt,
@@ -82,6 +110,9 @@ export function AppProvider({ children }: AppProviderProps) {
         setUploadedFileBase64,
         setRecordedAudioBase64,
         setSelectedPromptId,
+        setApiDocsOpen,
+        toggleApiDocs,
+        setActiveTab,
       }}
     >
       {children}

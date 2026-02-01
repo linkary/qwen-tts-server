@@ -1,49 +1,71 @@
+/**
+ * API Documentation Configuration
+ * Ported from static demo for API documentation panel
+ */
+
 export interface ApiEndpoint {
-  method: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   path: string;
 }
 
-export interface ApiDocSubTab {
+export interface ApiHeader {
+  name: string;
+  value?: string;
+  description: string;
+}
+
+export interface ApiParam {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+}
+
+export interface ApiSubTab {
   id: string;
   label: string;
   title: string;
   description: string;
   endpoint: ApiEndpoint;
   docsAnchor?: string;
-  requestHeaders?: Array<{ name: string; value: string; description: string }>;
-  requestParams?: Array<{ name: string; type: string; required: boolean; description: string }>;
-  requestExample?: any;
-  responseExample?: any;
-  responseHeaders?: Array<{ name: string; description: string }>;
+  requestHeaders?: ApiHeader[];
+  requestParams?: ApiParam[];
+  requestExample?: Record<string, any>;
+  responseExample?: Record<string, any>;
+  responseHeaders?: ApiHeader[];
   curlExample?: string;
 }
 
-export interface ApiDocSection {
+export interface ApiAdditionalEndpoint {
+  title: string;
+  endpoint: ApiEndpoint;
+  description?: string;
+  responseExample?: Record<string, any>;
+}
+
+export interface ApiDocConfig {
   title: string;
   description: string;
   endpoint?: ApiEndpoint;
   docsAnchor?: string;
-  requestHeaders?: Array<{ name: string; value: string; description: string }>;
-  requestParams?: Array<{ name: string; type: string; required: boolean; description: string }>;
-  requestExample?: any;
-  responseExample?: any;
-  responseHeaders?: Array<{ name: string; description: string }>;
+  requestHeaders?: ApiHeader[];
+  requestParams?: ApiParam[];
+  requestExample?: Record<string, any> | null;
+  responseExample?: Record<string, any>;
+  responseHeaders?: ApiHeader[];
   curlExample?: string;
-  subTabs?: ApiDocSubTab[];
-  additionalEndpoints?: Array<{
-    title: string;
-    endpoint: ApiEndpoint;
-    docsAnchor?: string;
-    requestHeaders?: Array<{ name: string; value: string; description: string }>;
-    requestParams?: Array<{ name: string; type: string; required: boolean; description: string }>;
-    requestExample?: any;
-    responseExample?: any;
-    description?: string;
-    curlExample?: string;
-  }>;
+  subTabs?: ApiSubTab[];
+  additionalEndpoints?: ApiAdditionalEndpoint[];
 }
 
-export const API_DOCS: Record<string, ApiDocSection> = {
+export type ApiDocsMap = {
+  'custom-voice': ApiDocConfig;
+  'voice-design': ApiDocConfig;
+  'voice-clone': ApiDocConfig;
+  'settings': ApiDocConfig;
+};
+
+export const API_DOCS: ApiDocsMap = {
   'custom-voice': {
     title: 'Custom Voice API',
     description: 'Generate speech using one of 9 preset speakers. Supports emotional control via style instructions and multiple languages.',
@@ -198,6 +220,30 @@ export const API_DOCS: Record<string, ApiDocSection> = {
   }'`
       },
       {
+        id: 'vc-upload',
+        label: 'Upload Audio',
+        title: 'Upload Reference Audio',
+        description: 'Upload an audio file to get its base64 string. Use this if you want to use a file instead of raw base64.',
+        endpoint: { method: 'POST', path: '/api/v1/base/upload-ref-audio' },
+        docsAnchor: '#/base/upload_reference_audio_api_v1_base_upload_ref_audio_post',
+        requestHeaders: [
+          { name: 'Content-Type', value: 'multipart/form-data', description: 'File upload' },
+          { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestParams: [
+          { name: 'file', type: 'file', required: true, description: 'Audio file to upload (WAV, MP3, etc.)' }
+        ],
+        responseExample: {
+          filename: 'my_voice.wav',
+          content_type: 'audio/wav',
+          audio_base64: '<base64_encoded_string>',
+          message: 'File uploaded and encoded successfully'
+        },
+        curlExample: `curl -X POST "{{baseUrl}}/api/v1/base/upload-ref-audio" \\
+  -H "X-API-Key: your-api-key" \\
+  -F "file=@/path/to/your/audio.wav"`
+      },
+      {
         id: 'vc-create-prompt',
         label: 'Create Prompt',
         title: 'Create Reusable Prompt',
@@ -210,6 +256,19 @@ export const API_DOCS: Record<string, ApiDocSection> = {
         },
         responseExample: {
           prompt_id: 'abc123-def456-ghi789'
+        }
+      },
+      {
+        id: 'vc-gen-prompt',
+        label: 'Use Prompt',
+        title: 'Generate with Saved Prompt',
+        description: 'Generate speech using a previously saved voice prompt.',
+        endpoint: { method: 'POST', path: '/api/v1/base/generate-with-prompt' },
+        requestExample: {
+          text: 'Text to synthesize with the saved voice.',
+          language: 'English',
+          prompt_id: 'abc123-def456-ghi789',
+          response_format: 'base64'
         }
       }
     ]

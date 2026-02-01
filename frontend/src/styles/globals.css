@@ -71,3 +71,14 @@ audio::-webkit-media-controls-panel {
   background: #15151f;
 }
 
+/* Smooth transitions for interactive elements */
+button,
+.tab,
+.card,
+a,
+input,
+textarea,
+select {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
