@@ -208,9 +208,14 @@ Create custom voices using natural language descriptions.
 ![Voice Design Demo](docs/images/demo_voice_design.png)
 
 ### Voice Clone Tab
-Clone any voice from a reference audio sample with guided recording support.
+Clone any voice from a reference audio sample. Choose between **Upload File** and **Microphone** tabs for flexible input.
 
-![Voice Clone Demo](docs/images/demo_voice_clone.png)
+![Voice Clone Demo](docs/images/demo_voice_clone_tab.png)
+
+### API Documentation Panel
+Access complete API reference directly within the demo. Features a widened view for better readability and interactive "View in Swagger" links.
+
+![API Docs Panel](docs/images/demo_api_docs_panel.png)
 
 ### Settings Tab
 Configure API access and monitor server status.
