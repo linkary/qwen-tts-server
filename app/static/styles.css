@@ -1680,6 +1680,103 @@ audio::-webkit-media-controls-panel {
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
+/* API Parameters Table */
+.api-table-container {
+    margin-bottom: var(--space-md);
+    overflow-x: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+
+    /* Scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-cyan-dim) var(--bg-surface);
+}
+
+.api-table-container::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.api-table-container::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.api-table-container::-webkit-scrollbar-thumb {
+    background-color: var(--accent-cyan-dim);
+    border-radius: 3px;
+}
+
+.api-table-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-cyan);
+}
+
+.api-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    text-align: left;
+}
+
+.api-table th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--border-subtle);
+    font-family: var(--font-display);
+}
+
+.api-table td {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    vertical-align: top;
+}
+
+.api-table tr:last-child td {
+    border-bottom: none;
+}
+
+.api-param-name {
+    font-family: var(--font-display);
+    color: var(--accent-cyan);
+    font-weight: 600;
+}
+
+.api-param-type {
+    color: var(--accent-amber);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+}
+
+.api-param-req {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.api-param-req.required {
+    background: rgba(255, 107, 107, 0.2);
+    color: var(--accent-coral);
+}
+
+.api-param-req.optional {
+    background: rgba(144, 144, 160, 0.2);
+    color: var(--text-muted);
+}
+
+.api-param-desc {
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
 /* Response Headers */
 .api-headers {
     margin-top: var(--space-md);

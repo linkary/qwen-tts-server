@@ -62,6 +62,12 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = Field(default="INFO", description="Log level")
     
+    # Environment
+    env: str = Field(
+        default="development",
+        description="Environment mode: 'development' or 'production'"
+    )
+    
     # Model Loading
     preload_models: bool = Field(
         default=False,

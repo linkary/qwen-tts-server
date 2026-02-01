@@ -41,9 +41,18 @@ const API_DOCS = {
             method: 'POST',
             path: '/api/v1/custom-voice/generate'
         },
+        docsAnchor: '#/custom-voice/generate_custom_voice_api_v1_custom_voice_generate_post',
         requestHeaders: [
             { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
             { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestParams: [
+            { name: 'text', type: 'string', required: true, description: 'Text to synthesize' },
+            { name: 'speaker', type: 'string', required: true, description: 'Name of the speaker' },
+            { name: 'language', type: 'string', required: false, description: 'Language code or "Auto"' },
+            { name: 'instruct', type: 'string', required: false, description: 'Style/emotion instruction' },
+            { name: 'speed', type: 'number', required: false, description: 'Speech speed (0.5 to 2.0)' },
+            { name: 'response_format', type: 'string', required: false, description: 'Audio format ("base64" or "float")' }
         ],
         requestExample: {
             text: 'Hello, welcome to the Qwen3-TTS demo!',
@@ -81,9 +90,17 @@ const API_DOCS = {
             method: 'POST',
             path: '/api/v1/voice-design/generate'
         },
+        docsAnchor: '#/voice-design/generate_voice_design_api_v1_voice_design_generate_post',
         requestHeaders: [
             { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
             { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestParams: [
+            { name: 'text', type: 'string', required: true, description: 'Text to synthesize' },
+            { name: 'instruct', type: 'string', required: true, description: 'Voice description prompt' },
+            { name: 'language', type: 'string', required: false, description: 'Language code or "Auto"' },
+            { name: 'speed', type: 'number', required: false, description: 'Speech speed (0.5 to 2.0)' },
+            { name: 'response_format', type: 'string', required: false, description: 'Audio format ("base64" or "float")' }
         ],
         requestExample: {
             text: 'Welcome to the future of voice synthesis.',
@@ -119,9 +136,19 @@ const API_DOCS = {
             method: 'POST',
             path: '/api/v1/base/clone'
         },
+        docsAnchor: '#/base/clone_voice_api_v1_base_clone_post',
         requestHeaders: [
             { name: 'Content-Type', value: 'application/json', description: 'Request body format' },
             { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+        ],
+        requestParams: [
+            { name: 'text', type: 'string', required: true, description: 'Text to synthesize' },
+            { name: 'ref_audio_base64', type: 'string', required: true, description: 'Reference audio (base64 encoded)' },
+            { name: 'ref_text', type: 'string', required: false, description: 'Transcript of reference audio (required if x_vector_only_mode is false)' },
+            { name: 'language', type: 'string', required: false, description: 'Language code or "Auto"' },
+            { name: 'x_vector_only_mode', type: 'boolean', required: false, description: 'Use X-vector only (no transcript)' },
+            { name: 'speed', type: 'number', required: false, description: 'Speech speed (0.5 to 2.0)' },
+            { name: 'response_format', type: 'string', required: false, description: 'Audio format' }
         ],
         requestExample: {
             text: 'This is my cloned voice speaking new words.',
@@ -154,6 +181,28 @@ const API_DOCS = {
     "response_format": "base64"
   }'`,
         additionalEndpoints: [
+            {
+                title: 'Upload Reference Audio',
+                description: 'Upload an audio file to get its base64 string. Use this if you want to use a file instead of raw base64.',
+                endpoint: { method: 'POST', path: '/api/v1/base/upload-ref-audio' },
+                docsAnchor: '#/base/upload_reference_audio_api_v1_base_upload_ref_audio_post',
+                requestHeaders: [
+                    { name: 'Content-Type', value: 'multipart/form-data', description: 'File upload' },
+                    { name: 'X-API-Key', value: 'your-api-key', description: 'API authentication key' }
+                ],
+                requestParams: [
+                    { name: 'file', type: 'file', required: true, description: 'Audio file to upload (WAV, MP3, etc.)' }
+                ],
+                responseExample: {
+                    filename: 'my_voice.wav',
+                    content_type: 'audio/wav',
+                    audio_base64: '<base64_encoded_string>',
+                    message: 'File uploaded and encoded successfully'
+                },
+                curlExample: `curl -X POST "{{baseUrl}}/api/v1/base/upload-ref-audio" \\
+  -H "X-API-Key: your-api-key" \\
+  -F "file=@/path/to/your/audio.wav"`
+            },
             {
                 title: 'Create Reusable Prompt',
                 description: 'Create a cached prompt from reference audio for faster subsequent generations.',
@@ -1617,7 +1666,10 @@ async function copyToClipboard(text, buttonElement) {
 /**
  * Render API endpoint block
  */
-function renderEndpointBlock(endpoint, requestHeaders, requestExample, responseExample, description) {
+/**
+ * Render API endpoint block
+ */
+function renderEndpointBlock(endpoint, docsAnchor, requestHeaders, requestParams, requestExample, responseExample, description) {
     let html = '';
 
     // Endpoint badge
@@ -1625,6 +1677,7 @@ function renderEndpointBlock(endpoint, requestHeaders, requestExample, responseE
         <div class="api-endpoint">
             <span class="api-method ${endpoint.method.toLowerCase()}">${endpoint.method}</span>
             <span class="api-path">${endpoint.path}</span>
+            ${docsAnchor ? `<a href="/docs${docsAnchor}" target="_blank" class="api-docs-link" title="Open in Swagger UI">↗️</a>` : ''}
         </div>
     `;
 
@@ -1650,12 +1703,43 @@ function renderEndpointBlock(endpoint, requestHeaders, requestExample, responseE
         `;
     }
 
+    // Request Parameters Table
+    if (requestParams && requestParams.length > 0) {
+        html += `
+            <div class="api-code-block">
+                <div class="api-code-label">Request Parameters</div>
+                <div class="api-table-container">
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${requestParams.map(p => `
+                                <tr>
+                                    <td><span class="api-param-name">${p.name}</span></td>
+                                    <td><span class="api-param-type">${p.type}</span></td>
+                                    <td><span class="api-param-req ${p.required ? 'required' : 'optional'}">${p.required ? 'YES' : 'NO'}</span></td>
+                                    <td><span class="api-param-desc">${p.description}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
     // Request example
     if (requestExample) {
         const requestJson = JSON.stringify(requestExample, null, 2);
         html += `
             <div class="api-code-block">
-                <div class="api-code-label">Request Body</div>
+                <div class="api-code-label">Request Body Example</div>
                 <button class="api-copy-btn" onclick="copyToClipboard(\`${requestJson.replace(/`/g, '\\`')}\`, this)">Copy</button>
                 <pre class="api-code">${syntaxHighlightJSON(requestExample)}</pre>
             </div>
@@ -1666,7 +1750,7 @@ function renderEndpointBlock(endpoint, requestHeaders, requestExample, responseE
     if (responseExample) {
         html += `
             <div class="api-code-block">
-                <div class="api-code-label">Response</div>
+                <div class="api-code-label">Response Example</div>
                 <pre class="api-code">${syntaxHighlightJSON(responseExample)}</pre>
             </div>
         `;
@@ -1690,7 +1774,7 @@ function renderApiDocsContent(tabId) {
         <div class="api-section">
             <h3 class="api-section-title">${docs.title}</h3>
             <p class="api-description">${docs.description}</p>
-            ${renderEndpointBlock(docs.endpoint, docs.requestHeaders, docs.requestExample, docs.responseExample)}
+            ${renderEndpointBlock(docs.endpoint, docs.docsAnchor, docs.requestHeaders, docs.requestParams, docs.requestExample, docs.responseExample)}
         </div>
     `;
 
@@ -1731,7 +1815,14 @@ function renderApiDocsContent(tabId) {
             html += `
                 <div class="api-section">
                     <h3 class="api-section-title">${ep.title}</h3>
-                    ${renderEndpointBlock(ep.endpoint, ep.requestHeaders, ep.requestExample, ep.responseExample, ep.description)}
+                    ${renderEndpointBlock(ep.endpoint, ep.docsAnchor, ep.requestHeaders, ep.requestParams, ep.requestExample, ep.responseExample, ep.description)}
+                    ${ep.curlExample ? `
+                        <div class="api-code-block" style="margin-top: 1rem;">
+                            <div class="api-code-label">cURL Example</div>
+                            <button class="api-copy-btn" onclick="copyToClipboard(\`${ep.curlExample.replace(/\{\{baseUrl\}\}/g, baseUrl).replace(/`/g, '\\`')}\`, this)">Copy</button>
+                            <pre class="api-code">${ep.curlExample.replace(/\{\{baseUrl\}\}/g, baseUrl)}</pre>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         });

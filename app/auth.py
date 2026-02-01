@@ -25,8 +25,15 @@ async def verify_api_key(api_key: Optional[str] = Security(api_key_header)) -> s
     """
     valid_api_keys = settings.get_api_keys_list()
     
-    # If no API keys configured, allow all requests (development mode)
+    # If no API keys configured
     if not valid_api_keys:
+        # In production, DO NOT allow access if no keys are set (fail secure)
+        if settings.env == "production":
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Security Error: No API keys configured in production environment.",
+            )
+        # In development, allow access for testing (fail open)
         return "development"
     
     if not api_key:

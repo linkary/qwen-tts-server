@@ -115,6 +115,10 @@ app = FastAPI(
     description="API server for Qwen3-TTS models supporting CustomVoice, VoiceDesign, and Base (voice cloning) models",
     version=__version__,
     lifespan=lifespan,
+    # Disable docs in production
+    docs_url="/docs" if settings.env == "development" else None,
+    redoc_url="/redoc" if settings.env == "development" else None,
+    openapi_url="/openapi.json" if settings.env == "development" else None,
 )
 
 # Add CORS middleware
