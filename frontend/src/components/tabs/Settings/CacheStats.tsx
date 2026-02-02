@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BarChart3 } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { useAppContext } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
@@ -50,7 +51,7 @@ export function CacheStats() {
   return (
     <div className="p-lg bg-bg-surface border border-border-subtle rounded-lg">
       <h3 className="font-display text-sm font-semibold text-text-primary mb-md flex items-center gap-sm">
-        📊 {t('cacheStats')}
+        <BarChart3 className="w-4 h-4 text-accent-cyan" /> {t('cacheStats')}
       </h3>
 
       <div>

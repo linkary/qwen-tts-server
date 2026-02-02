@@ -1,4 +1,4 @@
-import React from 'react';
+import { BookOpen } from 'lucide-react';
 
 interface ApiDocsToggleProps {
   isOpen: boolean;
@@ -15,7 +15,7 @@ export function ApiDocsToggle({ isOpen, onClick }: ApiDocsToggleProps) {
       title="API Documentation"
       style={{ letterSpacing: '0.1em' }}
     >
-      <span className="text-base">📚</span>
+      <BookOpen className="w-4 h-4 rotate-90" />
       <span>API</span>
     </button>
   );

@@ -49,8 +49,8 @@ export const translations = {
     recordingComplete: 'Recording complete!',
     recordingStarted: 'Recording started...',
     microphoneError: 'Could not access microphone',
-    readAloud: '📖 Read this text aloud:',
-    recordingTip: '💡 Speak clearly and naturally at your normal pace',
+    readAloud: 'Read this text aloud:',
+    recordingTip: 'Speak clearly and naturally at your normal pace',
     // Settings
     settingsTitle: 'Settings',
     settingsDesc: 'Configure API access and view server status.',
@@ -132,8 +132,8 @@ export const translations = {
     recordingComplete: '录音完成！',
     recordingStarted: '开始录音...',
     microphoneError: '无法访问麦克风',
-    readAloud: '📖 请朗读以下文字：',
-    recordingTip: '💡 请用正常语速清晰自然地朗读',
+    readAloud: '请朗读以下文字：',
+    recordingTip: '请用正常语速清晰自然地朗读',
     // Settings
     settingsTitle: '设置',
     settingsDesc: '配置API访问并查看服务器状态。',

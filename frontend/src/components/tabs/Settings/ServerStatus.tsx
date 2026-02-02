@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Server } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { useAppContext } from '../../../context/AppContext';
 import { useTranslation } from '../../../i18n/I18nContext';
@@ -30,7 +31,7 @@ export function ServerStatus() {
   return (
     <div className="p-lg bg-bg-surface border border-border-subtle rounded-lg">
       <h3 className="font-display text-sm font-semibold text-text-primary mb-md flex items-center gap-sm">
-        🖥️ {t('serverStatus')}
+        <Server className="w-4 h-4 text-accent-cyan" /> {t('serverStatus')}
       </h3>
       
       <div className="grid grid-cols-3 gap-md mb-md">

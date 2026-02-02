@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Key, Eye, EyeOff } from 'lucide-react';
 import { FormInput } from '../../forms/FormInput';
 import { Button } from '../../ui/Button';
 import { useAppContext } from '../../../context/AppContext';
@@ -20,7 +21,7 @@ export function ApiKeyConfig() {
   return (
     <div className="p-lg bg-bg-surface border border-border-subtle rounded-lg">
       <h3 className="font-display text-sm font-semibold text-text-primary mb-md flex items-center gap-sm">
-        🔑 {t('apiKey')}
+        <Key className="w-4 h-4 text-accent-cyan" /> {t('apiKey')}
       </h3>
       <div className="mb-md">
         <label className="block font-display text-xs font-medium text-text-secondary uppercase tracking-widest mb-sm">
@@ -39,7 +40,7 @@ export function ApiKeyConfig() {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary p-xs"
             title="Show/Hide"
           >
-            {showKey ? '🙈' : '👁️'}
+            {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         <p className="text-xs text-text-muted mt-sm">

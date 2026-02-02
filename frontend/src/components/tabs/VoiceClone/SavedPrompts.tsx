@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 import type { VoicePrompt } from '../../../types';
 import { useTranslation } from '../../../i18n/I18nContext';
 
@@ -59,7 +60,7 @@ export function SavedPrompts({
               }}
               className="text-text-muted hover:text-accent-coral p-xs"
             >
-              ✕
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         ))}

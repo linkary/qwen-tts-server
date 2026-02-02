@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BookOpen, X, ExternalLink } from 'lucide-react';
 import { API_DOCS, type ApiDocConfig, type ApiSubTab, type ApiParam, type ApiHeader, type ApiEndpoint, type ApiAdditionalEndpoint } from '../../config/apiDocs';
 import { syntaxHighlightJSON } from '../../utils/syntaxHighlight';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -234,15 +235,15 @@ export function ApiDocsPanel({ isOpen, onClose, activeTab }: ApiDocsPanelProps) 
         {/* Header */}
         <div className="flex items-center justify-between p-lg bg-bg-card border-b border-border-subtle shrink-0">
           <div className="flex items-center gap-sm text-accent-cyan">
-            <span className="text-base">📚</span>
+            <BookOpen className="w-5 h-5" />
             <span className="font-display text-base font-semibold">API Reference</span>
           </div>
           <button
             onClick={onClose}
-            className="text-text-muted hover:text-accent-coral transition-colors p-xs text-xl leading-none"
+            className="text-text-muted hover:text-accent-coral transition-colors p-xs leading-none"
             title="Close"
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 

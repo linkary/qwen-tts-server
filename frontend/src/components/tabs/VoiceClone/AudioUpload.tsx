@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { UploadCloud } from 'lucide-react';
 import { useTranslation } from '../../../i18n/I18nContext';
 import { useToast } from '../../../context/ToastContext';
 import { fileToBase64 } from '../../../utils/audio';
@@ -62,7 +63,9 @@ export function AudioUpload({ onAudioUploaded }: AudioUploadProps) {
           onDragOver={handleDragOver}
           className="border-2 border-dashed border-border-subtle rounded-lg p-2xl text-center cursor-pointer transition-all hover:border-accent-cyan hover:bg-[rgba(0,245,212,0.05)]"
         >
-          <div className="text-5xl mb-md opacity-50">📁</div>
+          <div className="flex justify-center mb-md opacity-50">
+            <UploadCloud className="w-12 h-12" />
+          </div>
           <div className="text-base text-text-secondary mb-sm">{t('uploadZoneText')}</div>
           <div className="text-xs text-text-muted">{t('uploadZoneHint')}</div>
           <input

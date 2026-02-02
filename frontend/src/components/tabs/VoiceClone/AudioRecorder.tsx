@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Mic, Square } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { useTranslation } from '../../../i18n/I18nContext';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
@@ -70,7 +71,7 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
               onClick={handleStart}
               className="flex-1 bg-gradient-to-br from-accent-coral to-accent-coral-dim text-bg-deep font-semibold"
             >
-              <span className="text-base">🎙️</span>
+              <Mic className="w-4 h-4" />
               <span>{t('startRecording')}</span>
             </Button>
           ) : (
@@ -79,7 +80,7 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
               onClick={handleStop}
               className="flex-1 border-2 border-accent-coral text-accent-coral hover:bg-[rgba(255,107,107,0.1)]"
             >
-              <span>⏹️</span>
+              <Square className="w-4 h-4 fill-current" />
               <span>{t('stopRecording')}</span>
             </Button>
           )}

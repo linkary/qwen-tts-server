@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen, Book, Clipboard, FileJson } from 'lucide-react';
 import { ApiKeyConfig } from './ApiKeyConfig';
 import { ServerStatus } from './ServerStatus';
 import { CacheStats } from './CacheStats';
@@ -22,7 +23,7 @@ export function SettingsTab() {
         {/* API Documentation Card */}
         <div className="p-lg bg-bg-surface border border-border-subtle rounded-lg">
           <h3 className="font-display text-sm font-semibold text-text-primary mb-md flex items-center gap-sm">
-            📚 {t('apiDocs')}
+            <BookOpen className="w-4 h-4" /> {t('apiDocs')}
           </h3>
           <p className="text-sm text-text-secondary mb-md">
             Access the full API documentation and interactive testing tools.
@@ -34,7 +35,9 @@ export function SettingsTab() {
               rel="noopener noreferrer"
               className="block text-center px-xl py-md font-display text-sm font-semibold uppercase tracking-wider rounded-md bg-bg-surface text-text-primary border border-border-subtle hover:bg-bg-elevated hover:border-border-active transition-all no-underline"
             >
-              📖 Swagger UI
+              <div className="flex items-center justify-center gap-sm">
+                <Book className="w-4 h-4" /> Swagger UI
+              </div>
             </a>
             <a
               href="/redoc"
@@ -42,7 +45,9 @@ export function SettingsTab() {
               rel="noopener noreferrer"
               className="block text-center px-xl py-md font-display text-sm font-semibold uppercase tracking-wider rounded-md bg-bg-surface text-text-primary border border-border-subtle hover:bg-bg-elevated hover:border-border-active transition-all no-underline"
             >
-              📋 ReDoc
+              <div className="flex items-center justify-center gap-sm">
+                <Clipboard className="w-4 h-4" /> ReDoc
+              </div>
             </a>
             <a
               href="/openapi.json"
@@ -50,7 +55,9 @@ export function SettingsTab() {
               rel="noopener noreferrer"
               className="block text-center px-xl py-md font-display text-sm font-semibold uppercase tracking-wider rounded-md bg-bg-surface text-text-primary border border-border-subtle hover:bg-bg-elevated hover:border-border-active transition-all no-underline"
             >
-              📄 OpenAPI JSON
+              <div className="flex items-center justify-center gap-sm">
+                <FileJson className="w-4 h-4" /> OpenAPI JSON
+              </div>
             </a>
           </div>
         </div>
