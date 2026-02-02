@@ -24,7 +24,7 @@ export function SavedPrompts({
         <label className="block font-display text-xs font-medium text-text-secondary uppercase tracking-widest mb-sm">
           {t('savedPrompts')}
         </label>
-        <p className="text-text-muted text-sm">No saved prompts yet</p>
+        <p className="text-text-muted text-sm">{t('noSavedPrompts')}</p>
       </div>
     );
   }

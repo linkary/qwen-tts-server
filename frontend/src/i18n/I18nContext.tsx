@@ -17,7 +17,12 @@ interface I18nProviderProps {
 export function I18nProvider({ children }: I18nProviderProps) {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('qwen-tts-lang');
-    return (saved as Language) || 'en';
+    if (saved) return saved as Language;
+
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith('zh')) return 'zh-cn';
+    
+    return 'en';
   });
 
   const setLanguage = useCallback((lang: Language) => {

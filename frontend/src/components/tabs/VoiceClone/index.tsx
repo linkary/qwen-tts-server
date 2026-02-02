@@ -39,7 +39,7 @@ export function VoiceCloneTab() {
   const [activeSubTab, setActiveSubTab] = useState<'upload' | 'record'>('upload');
   const [refText, setRefText] = useState('');
   const [xVectorOnly, setXVectorOnly] = useState(false);
-  const [text, setText] = useState('This is my cloned voice speaking new words that I never actually said.');
+  const [text, setText] = useState(t('defaultTextVoiceClone'));
   const [targetLanguage, setTargetLanguage] = useState('English');
   const [speed, setSpeed] = useState(1.0);
   const [isLoading, setIsLoading] = useState(false);
@@ -246,7 +246,7 @@ export function VoiceCloneTab() {
                     : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-[rgba(255,255,255,0.02)]'
                 )}
               >
-                Upload File
+                {t('vcUploadFile')}
               </button>
               <button
                 onClick={() => setActiveSubTab('record')}
@@ -257,7 +257,7 @@ export function VoiceCloneTab() {
                     : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-[rgba(255,255,255,0.02)]'
                 )}
               >
-                Microphone
+                {t('vcMicrophone')}
               </button>
             </div>
 
@@ -273,10 +273,10 @@ export function VoiceCloneTab() {
             {/* Reference Text */}
             <div className="mt-lg">
               <FormTextarea
-                label={`${t('refTranscript')} (transcript of the audio)`}
+                 label={`${t('refTranscript')} (${t('vcReferenceTranscript')})`}
                 value={refText}
                 onChange={(e) => setRefText(e.target.value)}
-                placeholder="Enter the exact words spoken in the reference audio..."
+                placeholder={t('vcEnterRefText')}
                 maxLength={1000}
               />
             </div>
@@ -286,7 +286,7 @@ export function VoiceCloneTab() {
               <Toggle
                 checked={xVectorOnly}
                 onChange={setXVectorOnly}
-                label="X-Vector Only Mode (no transcript needed, lower quality)"
+                label={t('vcXVectorMode')}
               />
             </div>
 
@@ -297,11 +297,10 @@ export function VoiceCloneTab() {
               onClick={handleCreatePrompt}
               className="w-full"
             >
-              Save to Library (Optional)
+              {t('vcSaveToLibrary')}
             </Button>
             <p className="text-center text-xs text-text-muted mt-xs mb-md">
-              Save this voice to the list below for faster reuse later. <br />
-              Not required for immediate generation.
+              {t('vcSaveHint')}
             </p>
 
             {/* Saved Prompts */}
@@ -319,7 +318,7 @@ export function VoiceCloneTab() {
           <Card>
             <CardHeader>
               <h3 className="font-display text-lg font-semibold text-text-primary">
-                Generate with Cloned Voice
+                {t('vcGenerateWithCloned')}
               </h3>
             </CardHeader>
 
@@ -327,7 +326,7 @@ export function VoiceCloneTab() {
               label={t('textToSynth')}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Enter what you want the cloned voice to say..."
+              placeholder={t('vcEnterGenText')}
               maxLength={1000}
             />
 
@@ -336,17 +335,17 @@ export function VoiceCloneTab() {
               value={targetLanguage}
               onChange={(e) => setTargetLanguage(e.target.value)}
             >
-              <option value="Auto">Auto Detect</option>
-              <option value="Chinese">Chinese</option>
-              <option value="English">English</option>
-              <option value="Japanese">Japanese</option>
-              <option value="Korean">Korean</option>
-              <option value="German">German</option>
-              <option value="French">French</option>
-              <option value="Russian">Russian</option>
-              <option value="Portuguese">Portuguese</option>
-              <option value="Spanish">Spanish</option>
-              <option value="Italian">Italian</option>
+              <option value="Auto">{t('langAuto')}</option>
+              <option value="Chinese">{t('langChinese')}</option>
+              <option value="English">{t('langEnglish')}</option>
+              <option value="Japanese">{t('langJapanese')}</option>
+              <option value="Korean">{t('langKorean')}</option>
+              <option value="German">{t('langGerman')}</option>
+              <option value="French">{t('langFrench')}</option>
+              <option value="Russian">{t('langRussian')}</option>
+              <option value="Portuguese">{t('langPortuguese')}</option>
+              <option value="Spanish">{t('langSpanish')}</option>
+              <option value="Italian">{t('langItalian')}</option>
             </FormSelect>
 
             <RangeSlider
@@ -364,7 +363,7 @@ export function VoiceCloneTab() {
               onClick={handleGenerate}
               className="w-full mt-lg"
             >
-              <span>▶</span> Clone Voice & Generate
+              <span>▶</span> {t('vcCloneAndGenerate')}
             </Button>
           </Card>
 

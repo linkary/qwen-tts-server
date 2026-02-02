@@ -18,8 +18,8 @@ export function VoiceDesignTab() {
   const { apiKey } = useAppContext();
   const { showToast } = useToast();
 
-  const [instruct, setInstruct] = useState('A warm, professional female voice with clear enunciation, speaking with confidence and a friendly tone');
-  const [text, setText] = useState('Welcome to the future of voice synthesis. With AI-powered technology, we can create any voice you imagine.');
+  const [instruct, setInstruct] = useState(t('defaultInstructVoiceDesign'));
+  const [text, setText] = useState(t('defaultTextVoiceDesign'));
   const [language, setLanguage] = useState('English');
   const [speed, setSpeed] = useState(1.0);
   const [isLoading, setIsLoading] = useState(false);
@@ -112,17 +112,17 @@ export function VoiceDesignTab() {
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
         >
-          <option value="Auto">Auto Detect</option>
-          <option value="Chinese">Chinese</option>
-          <option value="English">English</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Korean">Korean</option>
-          <option value="German">German</option>
-          <option value="French">French</option>
-          <option value="Russian">Russian</option>
-          <option value="Portuguese">Portuguese</option>
-          <option value="Spanish">Spanish</option>
-          <option value="Italian">Italian</option>
+          <option value="Auto">{t('langAuto')}</option>
+          <option value="Chinese">{t('langChinese')}</option>
+          <option value="English">{t('langEnglish')}</option>
+          <option value="Japanese">{t('langJapanese')}</option>
+          <option value="Korean">{t('langKorean')}</option>
+          <option value="German">{t('langGerman')}</option>
+          <option value="French">{t('langFrench')}</option>
+          <option value="Russian">{t('langRussian')}</option>
+          <option value="Portuguese">{t('langPortuguese')}</option>
+          <option value="Spanish">{t('langSpanish')}</option>
+          <option value="Italian">{t('langItalian')}</option>
         </FormSelect>
 
         <RangeSlider
@@ -140,7 +140,7 @@ export function VoiceDesignTab() {
           onClick={handleGenerate}
           className="w-full mt-lg"
         >
-          <span>▶</span> Generate Voice Design
+          <span>▶</span> {t('btnGenerateVoiceDesign')}
         </Button>
       </Card>
 

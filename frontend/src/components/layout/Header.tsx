@@ -40,13 +40,13 @@ export function Header() {
           </div>
 
           {/* Language Switcher */}
-          <div className="flex gap-xs p-xs bg-bg-surface border border-border-subtle rounded-md">
+          <div className="flex gap-xs p-[2px] bg-bg-surface border border-border-subtle rounded-md">
             <button
               onClick={() => setLanguage('en')}
               className={`px-sm py-xs font-display text-xs font-medium rounded transition-all ${
                 language === 'en'
-                  ? 'text-accent-cyan bg-bg-card'
-                  : 'text-text-muted hover:text-text-primary hover:bg-bg-elevated'
+                  ? 'text-accent-cyan bg-bg-card shadow-sm border border-border-subtle'
+                  : 'text-text-muted hover:text-text-primary hover:bg-bg-elevated border border-transparent'
               }`}
             >
               EN
@@ -55,8 +55,8 @@ export function Header() {
               onClick={() => setLanguage('zh-cn')}
               className={`px-sm py-xs font-display text-xs font-medium rounded transition-all ${
                 language === 'zh-cn'
-                  ? 'text-accent-cyan bg-bg-card'
-                  : 'text-text-muted hover:text-text-primary hover:bg-bg-elevated'
+                  ? 'text-accent-cyan bg-bg-card shadow-sm border border-border-subtle'
+                  : 'text-text-muted hover:text-text-primary hover:bg-bg-elevated border border-transparent'
               }`}
             >
               中文

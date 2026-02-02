@@ -19,13 +19,13 @@ export function AudioUpload({ onAudioUploaded }: AudioUploadProps) {
   const handleFileSelect = async (file: File) => {
     // Validate file type
     if (!file.type.startsWith('audio/')) {
-      showToast('Please upload an audio file', 'error');
+      showToast(t('uploadErrorFileType'), 'error');
       return;
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      showToast('File too large (max 5MB)', 'error');
+      showToast(t('uploadErrorSize'), 'error');
       return;
     }
 
@@ -34,9 +34,9 @@ export function AudioUpload({ onAudioUploaded }: AudioUploadProps) {
       setUploadedFile(file);
       setAudioUrl(URL.createObjectURL(file));
       onAudioUploaded(base64, file);
-      showToast('Audio uploaded successfully', 'success');
+      showToast(t('uploadSuccess'), 'success');
     } catch (error) {
-      showToast('Failed to process audio file', 'error');
+      showToast(t('uploadErrorProcess'), 'error');
     }
   };
 

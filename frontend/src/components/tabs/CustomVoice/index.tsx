@@ -19,7 +19,7 @@ export function CustomVoiceTab() {
   const { apiKey, selectedSpeaker, setSelectedSpeaker } = useAppContext();
   const { showToast } = useToast();
 
-  const [text, setText] = useState('Hello, welcome to the Qwen3-TTS Voice Laboratory! This is a demonstration of AI-powered text-to-speech technology.');
+  const [text, setText] = useState(t('defaultTextCustomVoice'));
   const [language, setLanguage] = useState('English');
   const [instruct, setInstruct] = useState('');
   const [speed, setSpeed] = useState(1.0);
@@ -96,17 +96,17 @@ export function CustomVoiceTab() {
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
           >
-            <option value="Auto">Auto Detect</option>
-            <option value="Chinese">Chinese</option>
-            <option value="English">English</option>
-            <option value="Japanese">Japanese</option>
-            <option value="Korean">Korean</option>
-            <option value="German">German</option>
-            <option value="French">French</option>
-            <option value="Russian">Russian</option>
-            <option value="Portuguese">Portuguese</option>
-            <option value="Spanish">Spanish</option>
-            <option value="Italian">Italian</option>
+            <option value="Auto">{t('langAuto')}</option>
+            <option value="Chinese">{t('langChinese')}</option>
+            <option value="English">{t('langEnglish')}</option>
+            <option value="Japanese">{t('langJapanese')}</option>
+            <option value="Korean">{t('langKorean')}</option>
+            <option value="German">{t('langGerman')}</option>
+            <option value="French">{t('langFrench')}</option>
+            <option value="Russian">{t('langRussian')}</option>
+            <option value="Portuguese">{t('langPortuguese')}</option>
+            <option value="Spanish">{t('langSpanish')}</option>
+            <option value="Italian">{t('langItalian')}</option>
           </FormSelect>
 
           <div className="mb-lg">

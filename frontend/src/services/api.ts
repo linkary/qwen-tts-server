@@ -25,6 +25,11 @@ export function getHeaders(apiKey?: string, contentType: string = 'application/j
   if (apiKey) {
     headers['X-API-Key'] = apiKey;
   }
+  // Add Accept-Language header based on user preference
+  const lang = localStorage.getItem('qwen-tts-lang');
+  if (lang) {
+    headers['Accept-Language'] = lang;
+  }
   return headers;
 }
 
