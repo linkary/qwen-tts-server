@@ -140,5 +140,16 @@ export const en = {
   defaultTextCustomVoice: 'Hello, welcome to the Qwen3-TTS Voice Laboratory! This is a demonstration of AI-powered text-to-speech technology.',
   defaultTextVoiceDesign: 'Welcome to the future of voice synthesis. With AI-powered technology, we can create any voice you imagine.',
   defaultInstructVoiceDesign: 'A warm, professional female voice with clear enunciation, speaking with confidence and a friendly tone',
-  defaultTextVoiceClone: 'This is my cloned voice speaking new words that I never actually said.'
+
+  defaultTextVoiceClone: 'This is my cloned voice speaking new words that I never actually said.',
+  // Speaker Descriptions
+  speakerVivianDesc: 'Bright, slightly edgy young female voice',
+  speakerSerenaDesc: 'Warm, gentle young female voice',
+  speakerUncleFuDesc: 'Seasoned male voice with a low, mellow timbre',
+  speakerDylanDesc: 'Youthful Beijing male voice, clear and natural',
+  speakerEricDesc: 'Lively Chengdu male voice with husky brightness',
+  speakerRyanDesc: 'Dynamic male voice with strong rhythmic drive',
+  speakerAidenDesc: 'Sunny American male voice with clear midrange',
+  speakerOnoAnnaDesc: 'Playful Japanese female voice, light and nimble',
+  speakerSoheeDesc: 'Warm Korean female voice with rich emotion',
 };

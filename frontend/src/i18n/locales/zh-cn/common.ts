@@ -140,5 +140,16 @@ export const zhCN = {
   defaultTextCustomVoice: '你好，欢迎来到 Qwen3-TTS 语音实验室！这是 AI 驱动的文本转语音技术的演示。',
   defaultTextVoiceDesign: '欢迎来到语音合成的未来。借助 AI 技术，我们可以创造出你想象中的任何声音。',
   defaultInstructVoiceDesign: '温暖、专业的女性声音，发音清晰，说话自信且语调友好',
-  defaultTextVoiceClone: '这是我的克隆声音，正在说我从未实际说过的新词。'
+
+  defaultTextVoiceClone: '这是我的克隆声音，正在说我从未实际说过的新词。',
+  // Speaker Descriptions
+  speakerVivianDesc: '明快、略带棱角的年轻女声',
+  speakerSerenaDesc: '温暖温柔的年轻女声',
+  speakerUncleFuDesc: '音色低沉醇厚的老练男声',
+  speakerDylanDesc: '年轻的北京男声，清晰自然',
+  speakerEricDesc: '活泼的成都男声，略带沙哑的明亮感',
+  speakerRyanDesc: '充满动感的男声，节奏感强',
+  speakerAidenDesc: '阳光的美式男声，中音清晰',
+  speakerOnoAnnaDesc: '俏皮的日语女声，轻盈灵动',
+  speakerSoheeDesc: '温暖的韩语女声，情感丰富',
 };

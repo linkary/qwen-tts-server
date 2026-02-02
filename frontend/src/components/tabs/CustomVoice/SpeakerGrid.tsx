@@ -1,6 +1,7 @@
 import React from 'react';
 import { SPEAKERS } from '../../../config/speakers';
 import { cn } from '../../../utils/cn';
+import { useTranslation } from '../../../i18n/I18nContext';
 
 interface SpeakerGridProps {
   selectedSpeaker: string;
@@ -8,6 +9,7 @@ interface SpeakerGridProps {
 }
 
 export function SpeakerGrid({ selectedSpeaker, onSelectSpeaker }: SpeakerGridProps) {
+  const t = useTranslation();
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-md mb-lg">
       {SPEAKERS.map((speaker) => (
@@ -28,7 +30,8 @@ export function SpeakerGrid({ selectedSpeaker, onSelectSpeaker }: SpeakerGridPro
             {speaker.native_language}
           </div>
           <div className="text-xs text-text-muted leading-snug">
-            {speaker.description}
+            {/* @ts-ignore */}
+            {t(`${speaker.i18nKey}Desc`)}
           </div>
         </div>
       ))}
