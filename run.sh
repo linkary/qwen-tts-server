@@ -45,7 +45,7 @@ EXAMPLES:
 
 ENVIRONMENT DETECTION:
     Priority: conda > venv > system Python
-    - Searches for conda environments: learn_ai, qwen3-tts, qwen-tts
+    - Searches for conda environments: qwen-tts, qwen3-tts
     - Falls back to venv if conda not found (creates if missing)
     - Use --venv to skip conda detection
 
@@ -194,7 +194,7 @@ activate_environment() {
 # Detect available conda environment
 detect_conda_env() {
     if command -v conda &> /dev/null; then
-        for env in learn_ai qwen3-tts qwen-tts; do
+        for env in qwen-tts qwen3-tts; do
             if conda env list | grep -q "^$env "; then
                 echo "$env"
                 return

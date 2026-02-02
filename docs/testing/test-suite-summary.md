@@ -103,7 +103,7 @@ tests/
 ### 1. Install Test Dependencies
 
 ```bash
-conda activate learn_ai
+conda activate qwen-tts
 pip install pytest pytest-asyncio pytest-cov pytest-mock
 ```
 
@@ -289,7 +289,7 @@ View: htmlcov/index.html
 ### Step 1: Run Unit Tests (Fast)
 
 ```bash
-conda activate learn_ai
+conda activate qwen-tts
 ./run_tests.sh unit
 ```
 
@@ -371,7 +371,7 @@ pytest-mock>=3.11.0
 
 1. **Install test dependencies:**
    ```bash
-   conda activate learn_ai
+   conda activate qwen-tts
    pip install pytest pytest-asyncio pytest-cov pytest-mock
    ```
 
@@ -433,7 +433,7 @@ pytest-mock>=3.11.0
 Your test suite is complete and ready to verify all v1.1.0 enhancements. Run:
 
 ```bash
-conda activate learn_ai
+conda activate qwen-tts
 ./run_tests.sh unit
 ```
 

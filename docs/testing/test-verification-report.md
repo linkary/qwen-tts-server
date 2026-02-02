@@ -106,7 +106,7 @@ Successfully implemented and verified a comprehensive test suite for Qwen3-TTS S
 
 ### Run all unit tests
 ```bash
-conda activate learn_ai
+conda activate qwen-tts
 pytest tests/unit/ -v
 ```
 

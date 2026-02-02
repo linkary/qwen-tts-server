@@ -7,7 +7,7 @@ Successfully completed sequential testing of all three Qwen3-TTS models with rea
 ## Test Environment
 
 - **Platform**: macOS (darwin)
-- **Python**: 3.10.13 (conda environment: learn_ai)
+- **Python**: 3.10.13 (conda environment: qwen-tts)
 - **Device**: CPU only (no CUDA)
 - **Cache Directory**: /tmp/qwen-tts-test-models
 - **Flash Attention**: Disabled (CPU doesn't support it)

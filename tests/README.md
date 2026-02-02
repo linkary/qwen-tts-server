@@ -31,7 +31,7 @@ tests/
 ### 1. Install Test Dependencies
 
 ```bash
-conda activate learn_ai
+conda activate qwen-tts
 pip install pytest pytest-asyncio pytest-cov pytest-mock
 ```
 
@@ -68,7 +68,7 @@ Or the tests will use environment variables set in `conftest.py`.
 ### All Tests
 
 ```bash
-conda activate learn_ai
+conda activate qwen-tts
 pytest tests/
 ```
 
@@ -256,7 +256,7 @@ TOTAL                               506     35    93%
 **Solution**: Run tests from project root:
 ```bash
 cd /Users/linkary/Codes/Labs/qwen-tts-server
-conda activate learn_ai
+conda activate qwen-tts
 pytest tests/
 ```
 
@@ -305,11 +305,11 @@ pytest tests/unit/
 **Solution**: Start the server first:
 ```bash
 # In one terminal
-conda activate learn_ai
+conda activate qwen-tts
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 # In another terminal
-conda activate learn_ai
+conda activate qwen-tts
 pytest tests/integration/
 ```
 
