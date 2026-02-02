@@ -80,7 +80,7 @@ export function CustomVoiceTab() {
         <p className="text-text-secondary text-base max-w-[600px]">{t('cvDesc')}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
         {/* Left Column */}
         <div>
           <FormTextarea
