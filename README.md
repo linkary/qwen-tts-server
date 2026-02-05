@@ -22,27 +22,32 @@ A production-ready FastAPI server for Qwen3-TTS models, supporting CustomVoice (
 ### Prerequisites
 
 - Python 3.10 or higher
+- [Conda](https://docs.conda.io/projects/miniconda/en/latest/) or [Miniconda](https://docs.anaconda.com/miniconda/) (recommended for CUDA management)
 - NVIDIA GPU with CUDA support (recommended)
 - At least 8GB GPU memory for 1.7B models (16GB recommended)
 - Docker and docker-compose (for Docker deployment)
 
 ### Installation Options
 
-**Option 1: Automated CUDA Installation (Linux with GPU) [RECOMMENDED]**
+**Option 1: Automated Installation [RECOMMENDED]**
 
-For Linux systems with NVIDIA GPU, use our automated installation script:
+Use the automated installation script:
 
 ```bash
-chmod +x install_cuda.sh
-./install_cuda.sh
+# Create and activate conda environment first
+conda create -n qwen-tts python=3.12
+conda activate qwen-tts
+
+# Run the installer
+chmod +x install.sh
+./install.sh
 ```
 
-This script will:
-- Create conda environment
-- Install PyTorch with CUDA
-- Install Flash Attention 2
-- Download all models (~10-12 GB)
-- Configure environment**
+The script will:
+- Detect CUDA availability
+- Install PyTorch (CUDA or CPU)
+- Install Flash Attention if compatible
+- Configure `.env` automatically
 
 **Option 2: Manual Installation (All platforms)**
 
