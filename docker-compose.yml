@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: qwen-tts-server:latest
+    image: linkary/qwen-tts-server:latest
     container_name: qwen-tts-server
     
     # GPU support

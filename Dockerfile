@@ -1,5 +1,23 @@
-# Use NVIDIA CUDA base image with Python
-FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+# Multi-stage build for Qwen3-TTS Server
+# Stage 1: Build frontend
+FROM node:22-slim AS frontend-builder
+
+WORKDIR /frontend
+
+# Copy frontend package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy frontend source
+COPY frontend/ ./
+
+# Build frontend
+RUN npm run build
+
+# Stage 2: Production image
+FROM nvidia/cuda:12.4.0-cudnn-runtime-ubuntu22.04
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -40,6 +58,9 @@ RUN pip install flash-attn>=2.5.0 --no-build-isolation || \
 
 # Copy application code
 COPY app/ ./app/
+
+# Copy frontend build from builder stage
+COPY --from=frontend-builder /frontend/dist ./frontend/dist
 
 # Create directories for models and outputs
 RUN mkdir -p /app/models /app/output

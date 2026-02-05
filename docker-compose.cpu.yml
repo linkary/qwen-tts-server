@@ -1,0 +1,17 @@
+# Docker Compose override for CPU-only environments
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.cpu.yml up -d
+
+version: '3.8'
+
+services:
+  qwen-tts-server:
+    # Remove GPU requirements
+    deploy:
+      resources:
+        reservations:
+          devices: []
+    
+    # Override environment for CPU
+    environment:
+      - CUDA_DEVICE=cpu
+      - USE_FLASH_ATTENTION=false

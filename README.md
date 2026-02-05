@@ -111,25 +111,42 @@ chmod +x run.sh
 ./run.sh --help
 ```
 
-**See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.**
+
 
 ### Docker Installation
 
-1. **Build and start with Docker Compose**
+**Option 1: Pull from Docker Hub (Recommended)**
 
 ```bash
+# GPU version
+docker pull linkary/qwen-tts-server:latest
+docker run -d --gpus all -p 8000:8000 linkary/qwen-tts-server:latest
+
+# CPU version
+docker pull linkary/qwen-tts-server:latest
+docker run -d -p 8000:8000 -e CUDA_DEVICE=cpu linkary/qwen-tts-server:latest
+```
+
+**Option 2: Build locally**
+
+```bash
+# Build and start with GPU support
 docker-compose up -d
+
+# Build and start with CPU only (no GPU required)
+docker-compose -f docker-compose.yml -f docker-compose.cpu.yml up -d
+
+# Development mode (with hot reload)
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
-2. **Check logs**
+**Manage containers**
 
 ```bash
+# Check logs
 docker-compose logs -f
-```
 
-3. **Stop the server**
-
-```bash
+# Stop the server
 docker-compose down
 ```
 

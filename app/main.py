@@ -142,26 +142,11 @@ if react_dist_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="react-assets")
         logger.info(f"React assets mounted from {assets_dir}")
 
-# Mount static files for legacy demo page
-static_dir = Path(__file__).parent / "static"
-if static_dir.exists():
-    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-    logger.info(f"Static files mounted from {static_dir}")
-
 # Include routers
 app.include_router(health.router)
 app.include_router(custom_voice.router)
 app.include_router(voice_design.router)
 app.include_router(base.router)
-
-
-@app.get("/demo-legacy")
-async def demo_legacy():
-    """Serve the legacy demo page"""
-    demo_file = Path(__file__).parent / "static" / "index.html"
-    if demo_file.exists():
-        return FileResponse(demo_file, media_type="text/html")
-    return {"error": "Legacy demo page not found"}
 
 
 @app.get("/demo")

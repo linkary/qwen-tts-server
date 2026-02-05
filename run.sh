@@ -249,6 +249,50 @@ fi
 activate_environment
 
 # ==============================================================================
+# Frontend Build (ensure latest React app is served)
+# ==============================================================================
+build_frontend() {
+    local frontend_dir="$SCRIPT_DIR/frontend"
+    local dist_dir="$frontend_dir/dist"
+    
+    # Check if frontend directory exists
+    if [ ! -d "$frontend_dir" ]; then
+        echo "⚠️  Frontend directory not found, skipping build"
+        return
+    fi
+    
+    # Check if node_modules exists
+    if [ ! -d "$frontend_dir/node_modules" ]; then
+        echo "📦 Installing frontend dependencies..."
+        (cd "$frontend_dir" && npm install)
+    fi
+    
+    # Check if build is needed (dist missing or source newer than dist)
+    local needs_build=false
+    
+    if [ ! -d "$dist_dir" ]; then
+        needs_build=true
+        echo "📦 Frontend build not found, building..."
+    elif [ -n "$(find "$frontend_dir/src" -newer "$dist_dir/index.html" 2>/dev/null)" ]; then
+        needs_build=true
+        echo "📦 Frontend source changed, rebuilding..."
+    fi
+    
+    if [ "$needs_build" = true ]; then
+        echo "🔨 Building frontend..."
+        (cd "$frontend_dir" && npm run build)
+        echo "✅ Frontend built successfully"
+    else
+        echo "✅ Frontend is up to date"
+    fi
+}
+
+# Build frontend (skip in dev mode as Vite handles it)
+if [ "$DEV_MODE" != true ]; then
+    build_frontend
+fi
+
+# ==============================================================================
 # SSL Configuration
 # ==============================================================================
 
