@@ -2,6 +2,41 @@
 
 All notable changes to the Qwen3-TTS API Server project.
 
+## [1.1.1] - 2026-02-05
+
+### Project Cleanup
+
+#### Removed
+- Legacy demo files (`app/static/`) - replaced by React frontend
+- Redundant startup script (`start.sh`) - consolidated into `run.sh`
+- Low-value files: `quickstart.py`, `MIGRATION_COMPLETE.md`, `GETTING_STARTED.md`, `INSTALL.md`, `Makefile`
+
+#### Docker Improvements
+- **Multi-stage Dockerfile**: Automatically builds React frontend in Node.js stage
+- **Updated base images**: Node 22 LTS, CUDA 12.4
+- **CPU support**: Added `docker-compose.cpu.yml` for CPU-only deployment
+- **Docker Hub ready**: Added `scripts/docker-publish.sh` for publishing
+- **Build optimization**: Added `.dockerignore` to reduce build context
+
+#### Documentation
+- Fixed broken references to deleted files in README
+- Added Conda/Miniconda installation links in Prerequisites
+- Updated Docker section with GPU/CPU/development modes
+- Improved `install.sh` with correct verification steps
+
+#### Configuration
+- Complete `.env.example` with all configuration options
+- Separated test dependencies into `requirements-dev.txt`
+- `run.sh` now auto-builds frontend before starting server
+
+### Migration Notes
+- Users of `start.sh` should now use `run.sh`
+- Users of `quickstart.py` should use `curl http://localhost:8000/health`
+- Docker users can now run CPU-only with:
+  ```bash
+  docker-compose -f docker-compose.yml -f docker-compose.cpu.yml up -d
+  ```
+
 ## [1.1.0] - 2026-01-30
 
 ### Performance Enhancements
