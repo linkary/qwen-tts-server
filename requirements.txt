@@ -28,8 +28,6 @@ python-magic>=0.4.27
 # Install separately AFTER other dependencies: pip install flash-attn>=2.5.0 --no-build-isolation
 # Or skip it and set USE_FLASH_ATTENTION=false in .env
 
-# Development/Testing dependencies
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
-pytest-cov>=4.1.0
-pytest-mock>=3.11.0
+# Development/Testing dependencies are in requirements-dev.txt
+# Install with: pip install -r requirements-dev.txt
+

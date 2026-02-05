@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Models and cache (large files)
+*.pt
+*.pth
+*.bin
+models/
+
+# Output files
+output/
+*.wav
+*.mp3
+
+# SSL certificates
+certs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tar
+*.tar.gz
+
+# Node modules (frontend dev)
+frontend/node_modules/
+
+# Development files
+Makefile
+*.sh
+!run.sh
+scripts/
+examples.py
