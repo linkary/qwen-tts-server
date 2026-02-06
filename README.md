@@ -120,6 +120,14 @@ chmod +x run.sh
 
 ### Docker Installation
 
+> [!IMPORTANT]
+> **GPU Support Requirement:** To run with `--gpus all`, you must have the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed and configured on your host machine.
+>
+> ```bash
+> # Quick check if installed
+> nvidia-ctk --version
+> ```
+
 **Option 1: Pull from Docker Hub (Recommended)**
 
 ```bash
