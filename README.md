@@ -120,16 +120,27 @@ chmod +x run.sh
 
 ### Docker Installation
 
+> [!IMPORTANT]
+> **GPU Support Requirement:** To run with `--gpus all`, you must have the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed and configured on your host machine.
+>
+> ```bash
+> # Quick check if installed
+> nvidia-ctk --version
+> ```
+
 **Option 1: Pull from Docker Hub (Recommended)**
 
 ```bash
-# GPU version
-docker pull linkary/qwen-tts-server:latest
-docker run -d --gpus all -p 8000:8000 linkary/qwen-tts-server:latest
+# GPU version (Recommended: mount models for persistence)
+docker run -d --gpus all -p 8000:8000 \
+  -v ~/.cache/huggingface:/app/models \
+  linkary/qwen-tts-server:latest
 
 # CPU version
-docker pull linkary/qwen-tts-server:latest
-docker run -d -p 8000:8000 -e CUDA_DEVICE=cpu linkary/qwen-tts-server:latest
+docker run -d -p 8000:8000 \
+  -e CUDA_DEVICE=cpu \
+  -v ~/.cache/huggingface:/app/models \
+  linkary/qwen-tts-server:latest
 ```
 
 **Option 2: Build locally**
