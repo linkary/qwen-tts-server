@@ -124,6 +124,7 @@ export function VoiceDesignTab() {
           <option value="Spanish">{t('langSpanish')}</option>
           <option value="Italian">{t('langItalian')}</option>
         </FormSelect>
+        <div className="mb-lg" />
 
         <RangeSlider
           label={t('speed')}

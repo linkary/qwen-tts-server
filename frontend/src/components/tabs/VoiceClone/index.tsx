@@ -329,6 +329,7 @@ export function VoiceCloneTab() {
               placeholder={t('vcEnterGenText')}
               maxLength={1000}
             />
+            <div className="mb-lg" />
 
             <FormSelect
               label={t('language')}
@@ -347,6 +348,7 @@ export function VoiceCloneTab() {
               <option value="Spanish">{t('langSpanish')}</option>
               <option value="Italian">{t('langItalian')}</option>
             </FormSelect>
+            <div className="mb-lg" />
 
             <RangeSlider
               label={t('speed')}

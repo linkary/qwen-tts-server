@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AudioWaveform } from '../../audio/AudioWaveform';
 import { Mic, Square } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { useTranslation } from '../../../i18n/I18nContext';
@@ -18,12 +19,15 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
   const t = useTranslation();
   const { language } = useI18n();
   const { showToast } = useToast();
-  const { isRecording, recordingTime, audioBlob, audioUrl, startRecording, stopRecording, error } =
+  const { isRecording, recordingTime, audioBlob, audioUrl, startRecording, stopRecording, error, mediaStream } =
     useAudioRecorder();
   const [hasRecorded, setHasRecorded] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const handleStart = async () => {
+    setIsStarting(true);
     await startRecording();
+    setIsStarting(false);
     if (error) {
       showToast(t('microphoneError'), 'error');
     } else {
@@ -69,6 +73,7 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
             <Button
               variant="danger"
               onClick={handleStart}
+              isLoading={isStarting}
               className="flex-1 bg-gradient-to-br from-accent-coral to-accent-coral-dim text-bg-deep font-semibold"
             >
               <Mic className="w-4 h-4" />
@@ -87,10 +92,19 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
         </div>
 
         {isRecording && (
-          <div className="flex items-center justify-center gap-sm p-md bg-[rgba(255,107,107,0.1)] border border-accent-coral rounded-md text-accent-coral font-display text-sm">
-            <div className={animationStyles['recording-dot']} />
-            <span>{t('recording')}</span>
-            <span>{timeDisplay}</span>
+          <div className="mb-md">
+            <AudioWaveform 
+              mode="recording" 
+              mediaStream={mediaStream} 
+              isActive={isRecording}
+              className="mb-sm border border-accent-coral/30"
+              barColor="#ff6b6b" // accent-coral
+            />
+            <div className="flex items-center justify-center gap-sm text-accent-coral font-display text-sm">
+              <div className={animationStyles['recording-dot']} />
+              <span>{t('recording')}</span>
+              <span>{timeDisplay}</span>
+            </div>
           </div>
         )}
       </div>
