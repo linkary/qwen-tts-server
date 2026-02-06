@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { WaveformVisualizer } from './WaveformVisualizer';
+import { AudioWaveform } from './AudioWaveform';
 import { PerformanceMetrics } from './PerformanceMetrics';
 import type { AudioMetrics } from '../../types/audio';
 
@@ -30,7 +30,11 @@ export function AudioPlayer({ audioUrl, metrics = {}, title = 'Generated Audio',
         <span className="font-display text-sm font-semibold text-accent-cyan">{title}</span>
       </div>
       
-      <WaveformVisualizer audioElement={audioRef.current} />
+      <AudioWaveform 
+        mode="playback" 
+        audioElement={audioRef.current} 
+        isActive={!audioRef.current?.paused}
+      />
       
       <audio ref={audioRef} controls className="w-full h-10" />
       

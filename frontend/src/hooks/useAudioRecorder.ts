@@ -8,6 +8,7 @@ export interface UseAudioRecorderReturn {
   startRecording: () => Promise<void>;
   stopRecording: () => void;
   error: string | null;
+  mediaStream: MediaStream | null;
 }
 
 export function useAudioRecorder(): UseAudioRecorderReturn {
@@ -16,6 +17,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -27,6 +29,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      setActiveStream(stream);
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       mediaRecorderRef.current = mediaRecorder;
@@ -46,6 +49,8 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
         // Stop all tracks
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+          setActiveStream(null);
         }
       };
 
@@ -88,5 +93,6 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     startRecording,
     stopRecording,
     error,
+    mediaStream: activeStream,
   };
 }
