@@ -131,13 +131,16 @@ chmod +x run.sh
 **Option 1: Pull from Docker Hub (Recommended)**
 
 ```bash
-# GPU version
-docker pull linkary/qwen-tts-server:latest
-docker run -d --gpus all -p 8000:8000 linkary/qwen-tts-server:latest
+# GPU version (Recommended: mount models for persistence)
+docker run -d --gpus all -p 8000:8000 \
+  -v ~/.cache/huggingface:/app/models \
+  linkary/qwen-tts-server:latest
 
 # CPU version
-docker pull linkary/qwen-tts-server:latest
-docker run -d -p 8000:8000 -e CUDA_DEVICE=cpu linkary/qwen-tts-server:latest
+docker run -d -p 8000:8000 \
+  -e CUDA_DEVICE=cpu \
+  -v ~/.cache/huggingface:/app/models \
+  linkary/qwen-tts-server:latest
 ```
 
 **Option 2: Build locally**

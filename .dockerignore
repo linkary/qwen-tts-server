@@ -43,6 +43,7 @@ htmlcov/
 *.pth
 *.bin
 models/
+app/models/hub/
 
 # Output files
 output/
