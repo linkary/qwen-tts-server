@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Qwen3-TTS Server Run Script
-# Unified launcher with support for conda/venv/docker modes
+# Unified launcher with Conda environment support
 # Usage: ./run.sh [options]
 
 set -e
@@ -24,7 +24,6 @@ OPTIONS:
     --ssl           Enable HTTPS with SSL certificates
     --setup         Setup mode: install dependencies (useful for first run)
     --docker        Run with Docker Compose
-    --venv          Force using venv instead of conda
     --dev           Development mode: enable auto-reload
 
 EXAMPLES:
@@ -40,14 +39,13 @@ EXAMPLES:
     # Run with Docker
     ./run.sh --docker
 
-    # Force venv instead of conda
-    ./run.sh --venv
-
-ENVIRONMENT DETECTION:
-    Priority: conda > venv > system Python
-    - Searches for conda environments: qwen-tts, qwen3-tts
-    - Falls back to venv if conda not found (creates if missing)
-    - Use --venv to skip conda detection
+ENVIRONMENT:
+    Requires Conda with one of these environments: qwen-tts, qwen3-tts
+    
+    Create environment:
+        conda create -n qwen-tts python=3.12
+        conda activate qwen-tts
+        ./run.sh --setup
 
 CONFIGURATION:
     Edit .env file or use environment variables:
@@ -65,7 +63,6 @@ EOF
 USE_SSL=false
 SETUP_MODE=false
 DOCKER_MODE=false
-FORCE_VENV=false
 DEV_MODE=false
 
 while [[ $# -gt 0 ]]; do
@@ -84,10 +81,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --docker)
             DOCKER_MODE=true
-            shift
-            ;;
-        --venv)
-            FORCE_VENV=true
             shift
             ;;
         --dev)
@@ -167,7 +160,7 @@ if [ -f .env ]; then
 fi
 
 # Save critical server configuration before environment activation
-# (conda/venv activation might override shell variables)
+# (conda activation might override shell variables)
 SERVER_HOST="${HOST:-0.0.0.0}"
 SERVER_PORT="${PORT:-8000}"
 
@@ -176,18 +169,20 @@ SERVER_PORT="${PORT:-8000}"
 # ==============================================================================
 
 activate_environment() {
-    if [ "$FORCE_VENV" = true ]; then
-        # Force venv mode
-        activate_venv
+    CONDA_ENV=$(detect_conda_env)
+    if [ -n "$CONDA_ENV" ]; then
+        activate_conda "$CONDA_ENV"
     else
-        # Try conda first
-        CONDA_ENV=$(detect_conda_env)
-        if [ -n "$CONDA_ENV" ]; then
-            activate_conda "$CONDA_ENV"
-        else
-            # Fallback to venv
-            activate_venv
-        fi
+        echo "❌ Error: No Conda environment found."
+        echo ""
+        echo "This project requires Conda. Please create an environment:"
+        echo "    conda create -n qwen-tts python=3.12"
+        echo "    conda activate qwen-tts"
+        echo "    ./run.sh --setup"
+        echo ""
+        echo "Or use Docker:"
+        echo "    ./run.sh --docker"
+        exit 1
     fi
 }
 
@@ -215,19 +210,6 @@ activate_conda() {
     unset LD_LIBRARY_PATH
     
     echo "✅ Conda environment activated"
-}
-
-# Activate or create venv
-activate_venv() {
-    if [ ! -d "venv" ]; then
-        echo "📦 Virtual environment not found. Creating venv..."
-        python3 -m venv venv
-        echo "✅ Virtual environment created"
-    fi
-    
-    echo "🔧 Activating virtual environment..."
-    source venv/bin/activate
-    echo "✅ Virtual environment activated"
 }
 
 # ==============================================================================
