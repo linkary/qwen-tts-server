@@ -155,7 +155,11 @@ if [ -f .env ]; then
         # Remove quotes if present and export
         value="${value%\"}"
         value="${value#\"}"
-        export "$key=$value"
+        
+        # Only export if not already set in shell environment
+        if [ -z "${!key}" ]; then
+            export "$key=$value"
+        fi
     done < .env
 fi
 
