@@ -290,6 +290,13 @@ if [ "$DEV_MODE" = true ]; then
     echo "🔧 Development mode enabled (auto-reload)"
 fi
 
+# Add HTTP/2 support (default: true)
+ENABLE_HTTP2="${ENABLE_HTTP2:-true}"
+if [ "$ENABLE_HTTP2" = true ]; then
+    CMD="$CMD --http2"
+    echo "🌐 HTTP/2 enabled"
+fi
+
 # Add SSL options if requested
 if [ "$USE_SSL" = true ]; then
     CERT_FILE="${SSL_CERTFILE:-./certs/cert.pem}"
