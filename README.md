@@ -123,9 +123,11 @@ chmod +x run.sh
 > [!IMPORTANT]
 > **GPU Support Requirement:** To run with `--gpus all`, you must have the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed and configured on your host machine.
 >
+> If you see `could not select device driver` error, run:
 > ```bash
-> # Quick check if installed
-> nvidia-ctk --version
+> # Configure Docker runtime
+> sudo nvidia-ctk runtime configure --runtime=docker
+> sudo systemctl restart docker
 > ```
 
 **Option 1: Pull from Docker Hub (Recommended)**
