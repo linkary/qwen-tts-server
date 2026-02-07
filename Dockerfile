@@ -34,6 +34,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ffmpeg \
     libsndfile1 \
+    sox \
+    libsox-fmt-all \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
