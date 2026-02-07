@@ -61,7 +61,7 @@ class ModelManager:
         }
         
         # Add flash attention if enabled
-        if settings.use_flash_attention:
+        if settings.use_flash_attention and settings.cuda_device != "cpu":
             load_kwargs["attn_implementation"] = "flash_attention_2"
         
         try:
