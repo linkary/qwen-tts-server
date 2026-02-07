@@ -62,7 +62,11 @@ class ModelManager:
         
         # Add flash attention if enabled
         if settings.use_flash_attention and settings.cuda_device != "cpu":
-            load_kwargs["attn_implementation"] = "flash_attention_2"
+            try:
+                import flash_attn
+                load_kwargs["attn_implementation"] = "flash_attention_2"
+            except ImportError:
+                logger.warning("Flash Attention 2 is enabled but 'flash_attn' is not installed. Falling back to default attention implementation.")
         
         try:
             model = Qwen3TTSModel.from_pretrained(model_path, **load_kwargs)
