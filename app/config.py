@@ -40,7 +40,6 @@ class Settings(BaseSettings):
     )
     host: str = Field(default="0.0.0.0", description="Server host")
     port: int = Field(default=8000, description="Server port")
-    enable_http2: bool = Field(default=True, description="Enable HTTP/2 support")
     
     # SSL/HTTPS Configuration
     ssl_enabled: bool = Field(
