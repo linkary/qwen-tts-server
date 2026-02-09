@@ -17,7 +17,7 @@ jobs:
       - name: Sync README to Docker Hub
         uses: peter-evans/dockerhub-description@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: linkary/qwen-tts-server
           short-description: ${{ github.event.repository.description }}
