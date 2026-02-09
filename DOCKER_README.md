@@ -1,11 +1,10 @@
 # Qwen3-TTS API Server
 
-A high-performance FastAPI server for **Qwen2.5-Math-7B-Instruct** based Text-to-Speech models.
+A FastAPI server for **Qwen3-TTS** based Text-to-Speech models.
 This server provides a RESTful API compatible with various TTS clients and supports voice cloning, voice design, and preset speakers.
 
 ## Features
 
-- **High Performance**: Optimized with Flash Attention 2 and CUDA.
 - **Multiple Models**: 
   - **CustomVoice**: 9 preset speakers with instruction control.
   - **VoiceDesign**: Create voices using natural language descriptions.
