@@ -6,13 +6,14 @@
 #   docker build -t linkary/qwen-tts-server:latest .
 #   
 # Build with Chinese pip mirror:
-#   docker build --build-arg PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ -t linkary/qwen-tts-server:latest .
+#   docker build --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple --build-arg PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn -t linkary/qwen-tts-server:latest .
 
 FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 
 # Build arguments
-ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
-ARG PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
+# Build arguments
+ARG PIP_INDEX_URL=https://pypi.org/simple
+ARG PIP_TRUSTED_HOST=
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
