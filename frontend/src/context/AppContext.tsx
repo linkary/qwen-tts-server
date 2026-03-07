@@ -6,9 +6,10 @@ import type { AudioMetrics } from '../types/audio';
 export interface TabAudioState {
   url: string | null;
   metrics: AudioMetrics;
+  isLoading: boolean;
 }
 
-const emptyAudio: TabAudioState = { url: null, metrics: {} };
+const emptyAudio: TabAudioState = { url: null, metrics: {}, isLoading: false };
 
 export type TabId = 'custom-voice' | 'voice-design' | 'voice-clone' | 'settings';
 

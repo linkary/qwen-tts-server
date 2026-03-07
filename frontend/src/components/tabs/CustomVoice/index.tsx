@@ -22,7 +22,6 @@ export function CustomVoiceTab() {
   const [language, setLanguage] = useState('English');
   const [instruct, setInstruct] = useState('');
   const [speed, setSpeed] = useState(1.0);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerate = async () => {
     if (!text.trim()) {
@@ -35,7 +34,7 @@ export function CustomVoiceTab() {
       return;
     }
 
-    setIsLoading(true);
+    setCustomVoiceAudio({ ...customVoiceAudio, isLoading: true });
     const startTime = performance.now();
 
     try {
@@ -62,13 +61,13 @@ export function CustomVoiceTab() {
           audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
           rtf: parseFloat(headers.get('x-rtf') || '0'),
         },
+        isLoading: false,
       });
 
       showToast(t('generated'), 'success');
     } catch (error) {
       showToast((error as Error).message, 'error');
-    } finally {
-      setIsLoading(false);
+      setCustomVoiceAudio({ ...customVoiceAudio, isLoading: false });
     }
   };
 
@@ -131,7 +130,7 @@ export function CustomVoiceTab() {
 
           <Button
             variant="primary"
-            isLoading={isLoading}
+            isLoading={customVoiceAudio.isLoading}
             loadingText={t('generating')}
             onClick={handleGenerate}
             className="w-full mt-lg"

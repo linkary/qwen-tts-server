@@ -43,7 +43,6 @@ export function VoiceCloneTab() {
   const [text, setText] = useState(t('defaultTextVoiceClone'));
   const [targetLanguage, setTargetLanguage] = useState('English');
   const [speed, setSpeed] = useState(1.0);
-  const [isLoading, setIsLoading] = useState(false);
   const [isCreatingPrompt, setIsCreatingPrompt] = useState(false);
 
   const handleAudioUploaded = (base64: string) => {
@@ -130,7 +129,7 @@ export function VoiceCloneTab() {
       return;
     }
 
-    setIsLoading(true);
+    setVoiceCloneAudio({ ...voiceCloneAudio, isLoading: true });
     const startTime = performance.now();
 
     try {
@@ -159,20 +158,20 @@ export function VoiceCloneTab() {
           rtf: parseFloat(headers.get('x-rtf') || '0'),
           cacheStatus: headers.get('x-cache-status') || undefined,
         },
+        isLoading: false,
       });
 
       showToast('Voice cloned successfully!', 'success');
     } catch (error) {
       showToast((error as Error).message, 'error');
-    } finally {
-      setIsLoading(false);
+      setVoiceCloneAudio({ ...voiceCloneAudio, isLoading: false });
     }
   };
 
   const handleGenerateWithPrompt = async () => {
     if (!selectedPromptId) return;
 
-    setIsLoading(true);
+    setVoiceCloneAudio({ ...voiceCloneAudio, isLoading: true });
     const startTime = performance.now();
 
     try {
@@ -199,13 +198,13 @@ export function VoiceCloneTab() {
           rtf: parseFloat(headers.get('x-rtf') || '0'),
           cacheStatus: headers.get('x-cache-status') || undefined,
         },
+        isLoading: false,
       });
 
       showToast('Generated with saved prompt!', 'success');
     } catch (error) {
       showToast((error as Error).message, 'error');
-    } finally {
-      setIsLoading(false);
+      setVoiceCloneAudio({ ...voiceCloneAudio, isLoading: false });
     }
   };
 
@@ -364,7 +363,7 @@ export function VoiceCloneTab() {
 
             <Button
               variant="primary"
-              isLoading={isLoading}
+              isLoading={voiceCloneAudio.isLoading}
               loadingText={t('generating')}
               onClick={handleGenerate}
               className="w-full mt-lg"

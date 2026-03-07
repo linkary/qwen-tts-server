@@ -21,7 +21,6 @@ export function VoiceDesignTab() {
   const [text, setText] = useState(t('defaultTextVoiceDesign'));
   const [language, setLanguage] = useState('English');
   const [speed, setSpeed] = useState(1.0);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerate = async () => {
     if (!text.trim()) {
@@ -39,7 +38,7 @@ export function VoiceDesignTab() {
       return;
     }
 
-    setIsLoading(true);
+    setVoiceDesignAudio({ ...voiceDesignAudio, isLoading: true });
     const startTime = performance.now();
 
     try {
@@ -65,13 +64,13 @@ export function VoiceDesignTab() {
           audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
           rtf: parseFloat(headers.get('x-rtf') || '0'),
         },
+        isLoading: false,
       });
 
       showToast(t('generated'), 'success');
     } catch (error) {
       showToast((error as Error).message, 'error');
-    } finally {
-      setIsLoading(false);
+      setVoiceDesignAudio({ ...voiceDesignAudio, isLoading: false });
     }
   };
 
@@ -136,7 +135,7 @@ export function VoiceDesignTab() {
 
         <Button
           variant="primary"
-          isLoading={isLoading}
+          isLoading={voiceDesignAudio.isLoading}
           loadingText={t('generating')}
           onClick={handleGenerate}
           className="w-full mt-lg"
