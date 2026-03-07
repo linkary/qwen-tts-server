@@ -4,6 +4,7 @@ Main FastAPI application
 import logging
 from pathlib import Path
 from contextlib import asynccontextmanager
+import numpy as np
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -81,7 +82,6 @@ async def warmup_models():
             model = model_manager.get_base_model()
             
             # Create a simple sine wave as dummy reference audio
-            import numpy as np
             duration = 1.0  # 1 second
             sample_rate = 24000
             frequency = 440.0  # A4 note
@@ -122,13 +122,12 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+_cors_origins = settings.cors_origins.split(",") if settings.cors_origins else ["*"]
+_use_credentials = "*" not in _cors_origins  # Credentials not allowed with wildcard
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "*",  # Configure appropriately for production
-        "http://localhost:5173",  # Vite dev server
-    ],
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=_use_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

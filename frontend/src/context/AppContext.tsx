@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { DEFAULT_API_KEY } from '../config/constants';
 import type { VoicePrompt } from '../types';
+import type { AudioMetrics } from '../types/audio';
+
+export interface TabAudioState {
+  url: string | null;
+  metrics: AudioMetrics;
+}
+
+const emptyAudio: TabAudioState = { url: null, metrics: {} };
 
 export type TabId = 'custom-voice' | 'voice-design' | 'voice-clone' | 'settings';
 
@@ -13,6 +21,9 @@ interface AppState {
   selectedPromptId: string | null;
   apiDocsOpen: boolean;
   activeTab: TabId;
+  customVoiceAudio: TabAudioState;
+  voiceDesignAudio: TabAudioState;
+  voiceCloneAudio: TabAudioState;
 }
 
 interface AppContextType extends AppState {
@@ -26,6 +37,9 @@ interface AppContextType extends AppState {
   setApiDocsOpen: (open: boolean) => void;
   toggleApiDocs: () => void;
   setActiveTab: (tab: TabId) => void;
+  setCustomVoiceAudio: (audio: TabAudioState) => void;
+  setVoiceDesignAudio: (audio: TabAudioState) => void;
+  setVoiceCloneAudio: (audio: TabAudioState) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -55,6 +69,9 @@ export function AppProvider({ children }: AppProviderProps) {
   });
   
   const [activeTab, setActiveTab] = useState<TabId>('custom-voice');
+  const [customVoiceAudio, setCustomVoiceAudio] = useState<TabAudioState>(emptyAudio);
+  const [voiceDesignAudio, setVoiceDesignAudio] = useState<TabAudioState>(emptyAudio);
+  const [voiceCloneAudio, setVoiceCloneAudio] = useState<TabAudioState>(emptyAudio);
 
   // Persist API key
   useEffect(() => {
@@ -103,6 +120,9 @@ export function AppProvider({ children }: AppProviderProps) {
         selectedPromptId,
         apiDocsOpen,
         activeTab,
+        customVoiceAudio,
+        voiceDesignAudio,
+        voiceCloneAudio,
         setApiKey,
         setSelectedSpeaker,
         addSavedPrompt,
@@ -113,6 +133,9 @@ export function AppProvider({ children }: AppProviderProps) {
         setApiDocsOpen,
         toggleApiDocs,
         setActiveTab,
+        setCustomVoiceAudio,
+        setVoiceDesignAudio,
+        setVoiceCloneAudio,
       }}
     >
       {children}

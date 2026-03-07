@@ -1,6 +1,7 @@
 """
 CustomVoice API endpoints
 """
+import json
 import logging
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -122,7 +123,7 @@ async def generate_custom_voice(
         
         # Apply speed adjustment if requested
         audio_data = wavs[0]
-        if hasattr(request, 'speed') and request.speed != 1.0:
+        if request.speed != 1.0:
             audio_data = apply_speed(audio_data, sr, request.speed)
         
         # Track metrics
@@ -208,7 +209,7 @@ async def generate_custom_voice_stream(
                 "sample_rate": sr,
                 **tracker.get_metrics()
             }
-            yield create_sse_message(str(metadata).replace("'", '"'), "metadata")
+            yield create_sse_message(json.dumps(metadata), "metadata")
             
             async for chunk_base64 in stream_audio_base64_chunks(audio_data, sr):
                 yield create_sse_message(chunk_base64, "audio")

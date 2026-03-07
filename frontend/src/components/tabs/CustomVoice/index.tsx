@@ -12,11 +12,10 @@ import { useToast } from '../../../context/ToastContext';
 import { useTranslation } from '../../../i18n/I18nContext';
 import { generateCustomVoice } from '../../../services/api';
 import { base64ToBlob } from '../../../utils/audio';
-import type { AudioMetrics } from '../../../types/audio';
 
 export function CustomVoiceTab() {
   const t = useTranslation();
-  const { apiKey, selectedSpeaker, setSelectedSpeaker } = useAppContext();
+  const { apiKey, selectedSpeaker, setSelectedSpeaker, customVoiceAudio, setCustomVoiceAudio } = useAppContext();
   const { showToast } = useToast();
 
   const [text, setText] = useState(t('defaultTextCustomVoice'));
@@ -24,8 +23,6 @@ export function CustomVoiceTab() {
   const [instruct, setInstruct] = useState('');
   const [speed, setSpeed] = useState(1.0);
   const [isLoading, setIsLoading] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<AudioMetrics>({});
 
   const handleGenerate = async () => {
     if (!text.trim()) {
@@ -57,12 +54,14 @@ export function CustomVoiceTab() {
       const genTime = (performance.now() - startTime) / 1000;
       const audioBlob = base64ToBlob(data.audio, 'audio/wav');
       const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
 
-      setMetrics({
-        generationTime: genTime,
-        audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
-        rtf: parseFloat(headers.get('x-rtf') || '0'),
+      setCustomVoiceAudio({
+        url,
+        metrics: {
+          generationTime: genTime,
+          audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
+          rtf: parseFloat(headers.get('x-rtf') || '0'),
+        },
       });
 
       showToast(t('generated'), 'success');
@@ -133,6 +132,7 @@ export function CustomVoiceTab() {
           <Button
             variant="primary"
             isLoading={isLoading}
+            loadingText={t('generating')}
             onClick={handleGenerate}
             className="w-full mt-lg"
           >
@@ -150,8 +150,8 @@ export function CustomVoiceTab() {
       </div>
 
       <AudioPlayer
-        audioUrl={audioUrl}
-        metrics={metrics}
+        audioUrl={customVoiceAudio.url}
+        metrics={customVoiceAudio.metrics}
         title={t('generatedAudio')}
       />
     </div>

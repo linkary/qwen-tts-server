@@ -52,8 +52,16 @@ class VoicePromptCache:
         Returns:
             Hash-based cache key
         """
-        # Create hash from audio data (first 1000 samples to be efficient)
-        audio_sample = audio_data[:min(1000, len(audio_data))].tobytes()
+        # Create hash from audio data (sample from start, middle, end + total length)
+        n = len(audio_data)
+        chunk_size = min(500, n)
+        mid = n // 2
+        audio_sample = b"".join([
+            audio_data[:chunk_size].tobytes(),
+            audio_data[mid:mid + chunk_size].tobytes(),
+            audio_data[-chunk_size:].tobytes(),
+            n.to_bytes(8, "little"),
+        ])
         audio_hash = hashlib.sha256(audio_sample).hexdigest()[:16]
         
         # Include ref_text and mode in the key

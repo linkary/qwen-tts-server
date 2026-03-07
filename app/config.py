@@ -1,6 +1,7 @@
 """
 Configuration management using Pydantic Settings
 """
+import logging
 import os
 from typing import List, Optional
 from pydantic import Field
@@ -40,6 +41,10 @@ class Settings(BaseSettings):
     )
     host: str = Field(default="0.0.0.0", description="Server host")
     port: int = Field(default=8000, description="Server port")
+    cors_origins: str = Field(
+        default="*",
+        description="Comma-separated list of allowed CORS origins (use '*' for all)"
+    )
     
     # SSL/HTTPS Configuration
     ssl_enabled: bool = Field(
@@ -152,7 +157,19 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Set HuggingFace cache directory if specified
-if settings.hf_home:
+_config_logger = logging.getLogger(__name__)
+if settings.hf_home and settings.model_cache_dir:
+    _config_logger.warning(
+        "Both HF_HOME and MODEL_CACHE_DIR are set. "
+        "MODEL_CACHE_DIR is deprecated — using HF_HOME='%s'. "
+        "Please remove MODEL_CACHE_DIR from your .env.",
+        settings.hf_home,
+    )
     os.environ["HF_HOME"] = settings.hf_home
-if settings.model_cache_dir:
-    os.environ["HF_HOME"] = settings.model_cache_dir  # Use HF_HOME instead of deprecated TRANSFORMERS_CACHE
+elif settings.model_cache_dir:
+    _config_logger.warning(
+        "MODEL_CACHE_DIR is deprecated. Please use HF_HOME instead."
+    )
+    os.environ["HF_HOME"] = settings.model_cache_dir
+elif settings.hf_home:
+    os.environ["HF_HOME"] = settings.hf_home

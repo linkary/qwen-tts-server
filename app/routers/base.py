@@ -1,6 +1,7 @@
 """
 Base model API endpoints for voice cloning
 """
+import json
 import logging
 import uuid
 import time
@@ -270,7 +271,7 @@ async def clone_voice_stream(
                 "sample_rate": sr,
                 **tracker.get_metrics()
             }
-            yield create_sse_message(str(metadata).replace("'", '"'), "metadata")
+            yield create_sse_message(json.dumps(metadata), "metadata")
             
             async for chunk_base64 in stream_audio_base64_chunks(audio_data, sr):
                 yield create_sse_message(chunk_base64, "audio")
@@ -425,14 +426,21 @@ async def upload_reference_audio(
     try:
         logger.info(f"Uploading reference audio: {file.filename}")
         
-        # Read file content
-        content = await file.read()
-        
-        # Validate it's audio
+        # Validate content type early
         if not file.content_type or not file.content_type.startswith("audio/"):
             raise HTTPException(
                 status_code=400,
                 detail="Invalid file type. Must be audio file."
+            )
+        
+        # Read file content with size limit
+        max_bytes = int(settings.audio_upload_max_size_mb * 1024 * 1024)
+        content = await file.read(max_bytes + 1)  # Read one extra byte to detect overflow
+        
+        if len(content) > max_bytes:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large. Maximum size is {settings.audio_upload_max_size_mb}MB."
             )
         
         # Convert to base64

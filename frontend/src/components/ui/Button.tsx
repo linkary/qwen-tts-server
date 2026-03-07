@@ -4,12 +4,13 @@ import { cn } from '../../utils/cn';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger';
   isLoading?: boolean;
+  loadingText?: string;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', isLoading, children, disabled, ...props }, ref) => {
+  ({ className, variant = 'primary', isLoading, loadingText, children, disabled, ...props }, ref) => {
     const baseStyles =
-      'inline-flex items-center justify-center gap-2 px-xl py-md font-display text-sm font-semibold uppercase tracking-wider rounded-md transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center gap-2 px-xl py-md font-display text-sm font-semibold uppercase tracking-wider rounded-md transition-all duration-150 disabled:cursor-not-allowed';
 
     const variantStyles = {
       primary:
@@ -20,24 +21,32 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         'bg-gradient-to-br from-accent-coral to-accent-coral-dim text-bg-deep hover:shadow-glow-coral',
     };
 
+    const spinnerColor = {
+      primary: 'border-t-bg-deep',
+      secondary: 'border-t-accent-cyan',
+      danger: 'border-t-bg-deep',
+    };
+
     return (
       <button
         ref={ref}
         className={cn(
           baseStyles,
           variantStyles[variant],
-          isLoading && 'relative text-transparent',
+          isLoading && 'pointer-events-none opacity-80',
           className
         )}
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading && (
-          <span className="absolute inset-0 flex items-center justify-center">
-            <span className="w-5 h-5 border-2 border-transparent border-t-current rounded-full animate-spin" />
-          </span>
+        {isLoading ? (
+          <>
+            <span className={cn('w-5 h-5 border-2 border-transparent rounded-full animate-spin', spinnerColor[variant])} />
+            <span>{loadingText || 'Generating...'}</span>
+          </>
+        ) : (
+          children
         )}
-        {children}
       </button>
     );
   }

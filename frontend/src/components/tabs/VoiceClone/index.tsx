@@ -18,7 +18,6 @@ import { base64ToBlob } from '../../../utils/audio';
 import { RECORDING_PROMPTS } from '../../../config/recordingPrompts';
 import type { AudioMetrics } from '../../../types/audio';
 import { cn } from '../../../utils/cn';
-
 export function VoiceCloneTab() {
   const t = useTranslation();
   const { language } = useI18n();
@@ -33,6 +32,8 @@ export function VoiceCloneTab() {
     setUploadedFileBase64,
     recordedAudioBase64,
     setRecordedAudioBase64,
+    voiceCloneAudio,
+    setVoiceCloneAudio,
   } = useAppContext();
   const { showToast } = useToast();
 
@@ -44,8 +45,6 @@ export function VoiceCloneTab() {
   const [speed, setSpeed] = useState(1.0);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreatingPrompt, setIsCreatingPrompt] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<AudioMetrics>({});
 
   const handleAudioUploaded = (base64: string) => {
     setUploadedFileBase64(base64);
@@ -151,13 +150,15 @@ export function VoiceCloneTab() {
       const genTime = (performance.now() - startTime) / 1000;
       const audioBlob = base64ToBlob(data.audio, 'audio/wav');
       const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
 
-      setMetrics({
-        generationTime: genTime,
-        audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
-        rtf: parseFloat(headers.get('x-rtf') || '0'),
-        cacheStatus: headers.get('x-cache-status') || undefined,
+      setVoiceCloneAudio({
+        url,
+        metrics: {
+          generationTime: genTime,
+          audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
+          rtf: parseFloat(headers.get('x-rtf') || '0'),
+          cacheStatus: headers.get('x-cache-status') || undefined,
+        },
       });
 
       showToast('Voice cloned successfully!', 'success');
@@ -189,13 +190,15 @@ export function VoiceCloneTab() {
       const genTime = (performance.now() - startTime) / 1000;
       const audioBlob = base64ToBlob(data.audio, 'audio/wav');
       const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
 
-      setMetrics({
-        generationTime: genTime,
-        audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
-        rtf: parseFloat(headers.get('x-rtf') || '0'),
-        cacheStatus: headers.get('x-cache-status') || undefined,
+      setVoiceCloneAudio({
+        url,
+        metrics: {
+          generationTime: genTime,
+          audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
+          rtf: parseFloat(headers.get('x-rtf') || '0'),
+          cacheStatus: headers.get('x-cache-status') || undefined,
+        },
       });
 
       showToast('Generated with saved prompt!', 'success');
@@ -362,6 +365,7 @@ export function VoiceCloneTab() {
             <Button
               variant="primary"
               isLoading={isLoading}
+              loadingText={t('generating')}
               onClick={handleGenerate}
               className="w-full mt-lg"
             >
@@ -370,8 +374,8 @@ export function VoiceCloneTab() {
           </Card>
 
           <AudioPlayer
-            audioUrl={audioUrl}
-            metrics={metrics}
+            audioUrl={voiceCloneAudio.url}
+            metrics={voiceCloneAudio.metrics}
             title="Cloned Voice Output"
             showCache={true}
           />

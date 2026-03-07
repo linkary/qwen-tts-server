@@ -3,6 +3,7 @@ Model manager for lazy loading and caching TTS models
 """
 import logging
 import threading
+import time
 from typing import Optional, Dict, Any
 from qwen_tts import Qwen3TTSModel
 from app.config import settings
@@ -157,22 +158,45 @@ class ModelManager:
 model_manager = ModelManager()
 
 
-# Voice clone prompt storage (in-memory for now)
+# Voice clone prompt storage (in-memory with TTL and size limits)
 # In production, consider using Redis or similar
+_PROMPT_MAX_SIZE = 100
+_PROMPT_TTL_SECONDS = 3600  # 1 hour
 _voice_clone_prompts: Dict[str, Dict[str, Any]] = {}
 _prompts_lock = threading.Lock()
 
 
+def _cleanup_expired_prompts():
+    """Remove expired prompts (called under lock)"""
+    now = time.time()
+    expired = [k for k, v in _voice_clone_prompts.items()
+               if now - v.get("_created_at", 0) > _PROMPT_TTL_SECONDS]
+    for k in expired:
+        del _voice_clone_prompts[k]
+
+
 def store_voice_clone_prompt(prompt_id: str, prompt_data: Dict[str, Any]):
-    """Store a voice clone prompt"""
+    """Store a voice clone prompt (with TTL and size limits)"""
     with _prompts_lock:
+        _cleanup_expired_prompts()
+        # Evict oldest if at capacity
+        while len(_voice_clone_prompts) >= _PROMPT_MAX_SIZE:
+            oldest_key = next(iter(_voice_clone_prompts))
+            del _voice_clone_prompts[oldest_key]
+        prompt_data["_created_at"] = time.time()
         _voice_clone_prompts[prompt_id] = prompt_data
 
 
 def get_voice_clone_prompt(prompt_id: str) -> Optional[Dict[str, Any]]:
-    """Retrieve a voice clone prompt"""
+    """Retrieve a voice clone prompt (returns None if expired)"""
     with _prompts_lock:
-        return _voice_clone_prompts.get(prompt_id)
+        data = _voice_clone_prompts.get(prompt_id)
+        if data is None:
+            return None
+        if time.time() - data.get("_created_at", 0) > _PROMPT_TTL_SECONDS:
+            del _voice_clone_prompts[prompt_id]
+            return None
+        return data
 
 
 def delete_voice_clone_prompt(prompt_id: str):
