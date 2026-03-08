@@ -2,6 +2,41 @@
 
 All notable changes to the Qwen3-TTS API Server project.
 
+## [1.1.2] - 2026-03-08
+
+### Improvements
+
+#### Frontend Demo Page
+- Configurable API base URL via `VITE_API_BASE_URL` environment variable for direct backend access during development
+- New `AudioWaveform` component for real-time playback and recording visualization
+- Centralized audio generation loading state from local components to `AppContext`
+- Upgraded UI icons from emojis to Lucide-React for improved consistency
+- Localized speaker descriptions and bilingual UI (English / 中文)
+- Migrated CSS to Tailwind with `@layer base` and `@apply` directives
+- Added API documentation panel with interactive Swagger links
+- Graceful offline handling with "Offline" status indicator
+
+#### Server Startup
+- `run.sh` now displays authentication state on startup
+  - Configured keys shown masked (e.g. `yo****-1`)
+  - Clear "No authentication (open access)" when no keys are set
+  - Works in both local and Docker (`--docker`) modes
+
+#### Configuration
+- **`USE_FLASH_ATTENTION` now defaults to `true`** — Flash Attention 2 is pre-installed in the Docker image and enabled by default for faster inference. Automatically skipped on CPU or when `flash_attn` is not installed (no action needed).
+
+#### Documentation
+- **README**: Added "Using as an API Server" section with end-to-end guide:
+  - Step 1: Configure API keys (local `.env` and Docker `-e` flag)
+  - Step 2: Start the server (run script, raw Python, Docker)
+  - Step 3: Generate speech via curl with `X-API-Key` header examples
+  - Covers CustomVoice, VoiceDesign, Chinese TTS, listing speakers/languages
+- **DOCKER_README**: Fixed outdated API endpoint paths, added curl usage examples
+- All curl examples now include `X-API-Key` header for copy-paste readiness
+
+
+---
+
 ## [1.1.1] - 2026-02-05
 
 ### Project Cleanup
