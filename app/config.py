@@ -131,6 +131,16 @@ class Settings(BaseSettings):
         description="Test text for model warmup"
     )
     
+    # Concurrency
+    max_concurrent_inferences: int = Field(
+        default=1,
+        description="Max parallel GPU inferences (1 for single GPU)"
+    )
+    inference_timeout_seconds: float = Field(
+        default=300.0,
+        description="Max time (seconds) a request waits in queue before 503"
+    )
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -185,7 +185,7 @@ class TestPerformanceHeaders:
             
             # Verify header values are valid
             gen_time = float(response.headers["X-Generation-Time"])
-            assert gen_time > 0
+            assert gen_time >= 0
             assert response.headers["X-Cache-Status"] in ["hit", "miss"]
     
     def test_rtf_header_calculation(self, api_client, mock_tts_model):

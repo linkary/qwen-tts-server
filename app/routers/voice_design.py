@@ -17,6 +17,8 @@ from app.models.manager import model_manager
 from app.utils.audio import numpy_to_wav_bytes, numpy_to_base64, apply_speed
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
 from app.utils.metrics import PerformanceTracker
+from app.utils.inference import run_inference
+from app.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +46,12 @@ async def generate_voice_design(
         model = model_manager.get_voice_design_model()
         
         # Generate audio
-        wavs, sr = model.generate_voice_design(
+        wavs, sr = await run_inference(
+            model.generate_voice_design,
             text=request.text,
             language=request.language,
             instruct=request.instruct,
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -110,10 +114,12 @@ async def generate_voice_design_stream(
         model = model_manager.get_voice_design_model()
         
         # Generate audio
-        wavs, sr = model.generate_voice_design(
+        wavs, sr = await run_inference(
+            model.generate_voice_design,
             text=request.text,
             language=request.language,
             instruct=request.instruct,
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -175,10 +181,12 @@ async def generate_voice_design_batch(
         model = model_manager.get_voice_design_model()
         
         # Generate audio
-        wavs, sr = model.generate_voice_design(
+        wavs, sr = await run_inference(
+            model.generate_voice_design,
             text=request.texts,
             language=request.languages,
             instruct=request.instructs,
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Convert to base64

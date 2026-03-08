@@ -31,6 +31,8 @@ from app.utils.audio import (
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
 from app.utils.caching import get_voice_cache
 from app.utils.metrics import PerformanceTracker
+from app.utils.inference import run_inference
+from app.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
@@ -100,10 +102,12 @@ async def clone_voice(
         # Create prompt if not cached
         if voice_prompt is None:
             tracker.set_cache_status("miss")
-            voice_prompt = model.create_voice_clone_prompt(
+            voice_prompt = await run_inference(
+                model.create_voice_clone_prompt,
                 ref_audio=(audio_data, sample_rate),
                 ref_text=request.ref_text if not request.x_vector_only_mode else None,
                 x_vector_only_mode=request.x_vector_only_mode,
+                timeout=app_settings.inference_timeout_seconds,
             )
             
             # Cache the prompt if enabled
@@ -119,10 +123,12 @@ async def clone_voice(
                 logger.debug("Cached voice prompt")
         
         # Generate audio with voice clone prompt
-        wavs, sr = model.generate_voice_clone(
+        wavs, sr = await run_inference(
+            model.generate_voice_clone,
             text=request.text,
             language=request.language,
             voice_clone_prompt=voice_prompt,
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Track metrics
@@ -225,10 +231,12 @@ async def clone_voice_stream(
         # Create prompt if not cached
         if voice_prompt is None:
             tracker.set_cache_status("miss")
-            voice_prompt = model.create_voice_clone_prompt(
+            voice_prompt = await run_inference(
+                model.create_voice_clone_prompt,
                 ref_audio=(audio_data, sample_rate),
                 ref_text=request.ref_text if not request.x_vector_only_mode else None,
                 x_vector_only_mode=request.x_vector_only_mode,
+                timeout=app_settings.inference_timeout_seconds,
             )
             
             # Cache the prompt if enabled
@@ -244,10 +252,12 @@ async def clone_voice_stream(
                 logger.debug("Cached voice prompt")
         
         # Generate audio with voice clone prompt
-        wavs, sr = model.generate_voice_clone(
+        wavs, sr = await run_inference(
+            model.generate_voice_clone,
             text=request.text,
             language=request.language,
             voice_clone_prompt=voice_prompt,
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -326,10 +336,12 @@ async def create_voice_clone_prompt(
             raise HTTPException(status_code=400, detail="Failed to load reference audio")
         
         # Create voice clone prompt
-        prompt_items = model.create_voice_clone_prompt(
+        prompt_items = await run_inference(
+            model.create_voice_clone_prompt,
             ref_audio=ref_audio,
             ref_text=request.ref_text if not request.x_vector_only_mode else None,
             x_vector_only_mode=request.x_vector_only_mode,
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Generate unique prompt ID
@@ -381,10 +393,12 @@ async def generate_with_voice_clone_prompt(
         model = model_manager.get_base_model()
         
         # Generate audio with saved prompt
-        wavs, sr = model.generate_voice_clone(
+        wavs, sr = await run_inference(
+            model.generate_voice_clone,
             text=request.text,
             language=request.language,
             voice_clone_prompt=prompt_data["prompt_items"],
+            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Return based on format

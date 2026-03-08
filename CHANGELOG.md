@@ -6,6 +6,12 @@ All notable changes to the Qwen3-TTS API Server project.
 
 ### Improvements
 
+#### Concurrent Request Handling
+- All model inference calls now run in a background thread pool via `run_in_executor`, keeping the event loop responsive
+- Semaphore-based GPU concurrency control (`MAX_CONCURRENT_INFERENCES`, default 1 for single GPU)
+- Timeout-based 503 rejection when the queue is full (`INFERENCE_TIMEOUT_SECONDS`, default 300s / 5 min)
+- Health checks and SSE streams no longer block during inference
+
 #### Frontend Demo Page
 - Configurable API base URL via `VITE_API_BASE_URL` environment variable for direct backend access during development
 - New `AudioWaveform` component for real-time playback and recording visualization
