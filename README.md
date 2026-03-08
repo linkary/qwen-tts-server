@@ -2,6 +2,8 @@
 
 A production-ready FastAPI server for Qwen3-TTS models, supporting CustomVoice (preset speakers), VoiceDesign (natural language voice design), and Base models (voice cloning).
 
+![Qwen3-TTS Demo Page](docs/images/demo_latest.png)
+
 ## Features
 
 - **Multiple Model Support**: CustomVoice, VoiceDesign, and Base (voice cloning) models
