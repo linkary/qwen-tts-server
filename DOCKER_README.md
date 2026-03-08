@@ -69,14 +69,49 @@ docker run -d \
   linkary/qwen-tts-server:latest
 ```
 
+## API Usage (curl)
+
+Once the container is running, generate speech with a single curl command:
+
+```bash
+# Text-to-Speech with a preset speaker
+curl -X POST http://localhost:8000/api/v1/custom-voice/generate \
+  -H "X-API-Key: my-secret-key-123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello from Docker! This is the Qwen 3 TTS server.",
+    "language": "English",
+    "speaker": "Ryan",
+    "response_format": "wav"
+  }' \
+  --output hello.wav
+```
+
+```bash
+# Text-to-Speech with a custom voice description
+curl -X POST http://localhost:8000/api/v1/voice-design/generate \
+  -H "X-API-Key: my-secret-key-123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Welcome to our broadcast.",
+    "language": "English",
+    "instruct": "A deep, calm male voice with a professional tone",
+    "response_format": "wav"
+  }' \
+  --output broadcast.wav
+```
+
+> **Tip:** If `API_KEYS` is not set, omit the `-H "X-API-Key: ..."` header.
+
 ## API Endpoints
 
 The server exposes the following main endpoints:
 
-- `GET /health` - Server health check
-- `POST /api/v1/cv/generate` - CustomVoice generation (Preset speakers)
-- `POST /api/v1/vd/generate` - VoiceDesign generation (Description based)
-- `POST /api/v1/base/generate` - Voice Cloning generation (Reference audio)
+- `GET /health` — Server health check
+- `GET /health/models` — Check loaded models
+- `POST /api/v1/custom-voice/generate` — Preset speaker TTS
+- `POST /api/v1/voice-design/generate` — Natural language voice design TTS
+- `POST /api/v1/base/clone` — Voice cloning from reference audio
 
 Full API documentation (Swagger UI) is available at `http://localhost:8000/docs` when running the container.
 
