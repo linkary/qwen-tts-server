@@ -12,8 +12,9 @@
 FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-devel AS builder
 
 # Build arguments
-ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
-ARG PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
+# Build arguments
+ARG PIP_INDEX_URL=https://pypi.org/simple
+ARG PIP_TRUSTED_HOST=
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \

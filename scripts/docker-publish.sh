@@ -10,44 +10,103 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
+# ==============================================================================
 # Configuration
-DOCKER_HUB_USER="${DOCKER_HUB_USER:-linkary}"
+# ==============================================================================
+
+# Load .env file from scripts directory if it exists (for local development)
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    echo "📄 Loading configuration from $SCRIPT_DIR/.env..."
+    # Export variables from .env
+    set -a
+    source "$SCRIPT_DIR/.env"
+    set +a
+fi
+
+# Docker Hub configuration
+DOCKER_HUB_USER="${DOCKERHUB_USER:-${DOCKER_HUB_USER:-linkary}}"
 IMAGE_NAME="qwen-tts-server"
 FULL_IMAGE_NAME="${DOCKER_HUB_USER}/${IMAGE_NAME}"
 
-# Get version from argument or package.json
+# Get version from argument
 VERSION="${1:-latest}"
 
 echo "========================================"
-echo "Qwen3-TTS Server - Docker Publish"
+echo "🚀 Qwen3-TTS Server - Docker Publish"
+echo "========================================"
+echo "Image:   ${FULL_IMAGE_NAME}"
+echo "Version: ${VERSION}"
+echo "User:    ${DOCKER_HUB_USER}"
 echo "========================================"
 echo ""
-echo "Image: ${FULL_IMAGE_NAME}"
-echo "Version: ${VERSION}"
-echo ""
 
-# Check if logged in to Docker Hub
-if ! docker info 2>/dev/null | grep -q "Username"; then
-    echo "⚠️  Not logged in to Docker Hub"
-    echo "Please run: docker login"
+# ==============================================================================
+# 1. Frontend Build (Always Force Rebuild)
+# ==============================================================================
+
+echo "📦 Building Frontend..."
+
+# Check for npm
+if ! command -v npm &> /dev/null; then
+    echo "❌ Error: npm is not installed. Please install Node.js."
+    echo "   (Required for building the frontend assets)"
     exit 1
 fi
 
-# Build the image
-echo "🔨 Building Docker image..."
+cd frontend
+
+echo "   Running npm install..."
+npm install
+
+echo "   Running npm run build..."
+npm run build
+
+cd ..
+echo "✅ Frontend build complete."
+echo ""
+
+# ==============================================================================
+# 2. Docker Authentication
+# ==============================================================================
+
+# Check if DOCKERHUB_TOKEN is provided (CI or local .env)
+if [ -n "$DOCKERHUB_TOKEN" ]; then
+    echo "🔐 Logging in to Docker Hub..."
+    # Use print phrase to avoid leaking token in logs if command fails
+    echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+else
+    # Check if already logged in
+    if ! docker info 2>/dev/null | grep -q "Username"; then
+        echo "⚠️  Not logged in to Docker Hub and DOCKERHUB_TOKEN not found."
+        echo "   Please run 'docker login' or set DOCKERHUB_TOKEN in scripts/.env"
+        exit 1
+    else
+        echo "✅ Already logged in to Docker Hub (interactive mode)"
+    fi
+fi
+echo ""
+
+# ==============================================================================
+# 3. Build & Push Docker Image
+# ==============================================================================
+
+echo "🐳 Building Docker image..."
+# Use --platform linux/amd64 if on ARM/M1 for compatibility, OR allow multi-arch if needed.
+# For now, we rely on default or host architecture, but ideally for Hub we want amd64.
+# Adding --platform for stability on Docker Hub (usually expected to be amd64 for servers)
+# ERROR: If we use --platform linux/amd64 on M1 mac without buildx setup, it might be slow.
+# Users should use buildx for multi-arch. For simple script, we stick to standard build.
+
 docker build -t "${FULL_IMAGE_NAME}:${VERSION}" .
 
-# Tag as latest if not already latest
-if [ "$VERSION" != "latest" ]; then
-    echo "🏷️  Tagging as latest..."
-    docker tag "${FULL_IMAGE_NAME}:${VERSION}" "${FULL_IMAGE_NAME}:latest"
-fi
+echo "🏷️  Tagging as latest..."
+docker tag "${FULL_IMAGE_NAME}:${VERSION}" "${FULL_IMAGE_NAME}:latest"
 
-# Push to Docker Hub
 echo "📤 Pushing to Docker Hub..."
 docker push "${FULL_IMAGE_NAME}:${VERSION}"
 
 if [ "$VERSION" != "latest" ]; then
+    echo "📤 Pushing latest tag..."
     docker push "${FULL_IMAGE_NAME}:latest"
 fi
 
@@ -55,10 +114,6 @@ echo ""
 echo "========================================"
 echo "✅ Successfully published!"
 echo "========================================"
-echo ""
-echo "Pull with:"
-echo "  docker pull ${FULL_IMAGE_NAME}:${VERSION}"
-echo ""
 echo "Run with:"
 echo "  docker run -d --gpus all -p 8000:8000 ${FULL_IMAGE_NAME}:${VERSION}"
 echo ""
