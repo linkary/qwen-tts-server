@@ -11,20 +11,16 @@ import { useToast } from '../../../context/ToastContext';
 import { useTranslation } from '../../../i18n/I18nContext';
 import { generateVoiceDesign } from '../../../services/api';
 import { base64ToBlob } from '../../../utils/audio';
-import type { AudioMetrics } from '../../../types/audio';
 
 export function VoiceDesignTab() {
   const t = useTranslation();
-  const { apiKey } = useAppContext();
+  const { apiKey, voiceDesignAudio, setVoiceDesignAudio } = useAppContext();
   const { showToast } = useToast();
 
   const [instruct, setInstruct] = useState(t('defaultInstructVoiceDesign'));
   const [text, setText] = useState(t('defaultTextVoiceDesign'));
   const [language, setLanguage] = useState('English');
   const [speed, setSpeed] = useState(1.0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<AudioMetrics>({});
 
   const handleGenerate = async () => {
     if (!text.trim()) {
@@ -42,7 +38,7 @@ export function VoiceDesignTab() {
       return;
     }
 
-    setIsLoading(true);
+    setVoiceDesignAudio({ ...voiceDesignAudio, isLoading: true });
     const startTime = performance.now();
 
     try {
@@ -60,19 +56,21 @@ export function VoiceDesignTab() {
       const genTime = (performance.now() - startTime) / 1000;
       const audioBlob = base64ToBlob(data.audio, 'audio/wav');
       const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
 
-      setMetrics({
-        generationTime: genTime,
-        audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
-        rtf: parseFloat(headers.get('x-rtf') || '0'),
+      setVoiceDesignAudio({
+        url,
+        metrics: {
+          generationTime: genTime,
+          audioDuration: parseFloat(headers.get('x-audio-duration') || '0'),
+          rtf: parseFloat(headers.get('x-rtf') || '0'),
+        },
+        isLoading: false,
       });
 
       showToast(t('generated'), 'success');
     } catch (error) {
       showToast((error as Error).message, 'error');
-    } finally {
-      setIsLoading(false);
+      setVoiceDesignAudio({ ...voiceDesignAudio, isLoading: false });
     }
   };
 
@@ -137,7 +135,8 @@ export function VoiceDesignTab() {
 
         <Button
           variant="primary"
-          isLoading={isLoading}
+          isLoading={voiceDesignAudio.isLoading}
+          loadingText={t('generating')}
           onClick={handleGenerate}
           className="w-full mt-lg"
         >
@@ -145,7 +144,7 @@ export function VoiceDesignTab() {
         </Button>
       </Card>
 
-      <AudioPlayer audioUrl={audioUrl} metrics={metrics} title={t('generatedAudio')} />
+      <AudioPlayer audioUrl={voiceDesignAudio.url} metrics={voiceDesignAudio.metrics} title={t('generatedAudio')} />
     </div>
   );
 }

@@ -189,18 +189,23 @@ export function AudioWaveform({
 
     if (isActive) {
        initAudioContext();
-    } else if (animationRef.current !== undefined) {
-       cancelAnimationFrame(animationRef.current);
-       animationRef.current = undefined;
-       // Draw one last frame to clear or set idle state
+    } else {
+       if (animationRef.current !== undefined) {
+         cancelAnimationFrame(animationRef.current);
+         animationRef.current = undefined;
+       }
+       // Draw idle state
        const canvas = canvasRef.current;
        if (canvas) {
          const ctx = canvas.getContext('2d');
          const rect = canvas.getBoundingClientRect();
-         if (ctx) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+         if (ctx && rect.width > 0) {
             const dpr = window.devicePixelRatio || 1;
-            ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.clearRect(0, 0, rect.width, rect.height);
             
             // Draw idle line
              for (let i = 0; i < barCount; i++) {

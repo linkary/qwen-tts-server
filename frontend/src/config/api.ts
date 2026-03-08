@@ -1,5 +1,5 @@
 export const CONFIG = {
-  baseUrl: typeof window !== 'undefined' ? window.location.origin : '',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : ''),
   endpoints: {
     health: '/health',
     modelsHealth: '/health/models',

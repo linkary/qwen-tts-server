@@ -2,6 +2,8 @@
 
 A production-ready FastAPI server for Qwen3-TTS models, supporting CustomVoice (preset speakers), VoiceDesign (natural language voice design), and Base models (voice cloning).
 
+![Qwen3-TTS Demo Page](docs/images/demo_latest.png)
+
 ## Features
 
 - **Multiple Model Support**: CustomVoice, VoiceDesign, and Base (voice cloning) models
@@ -167,6 +169,165 @@ docker-compose logs -f
 # Stop the server
 docker-compose down
 ```
+
+## Using as an API Server
+
+This section shows how to start the server and call TTS endpoints via `curl`.
+
+### Step 1: Configure API Keys
+
+API key authentication is enabled by default. Set your keys before starting the server.
+
+**Local — edit `.env`:**
+
+```bash
+# .env
+API_KEYS=my-secret-key
+```
+
+You can specify multiple comma-separated keys: `API_KEYS=key-1,key-2,key-3`
+
+**Docker — pass via environment variable:**
+
+```bash
+docker run -d --gpus all -p 8000:8000 \
+  -e API_KEYS=my-secret-key \
+  -v ~/.cache/huggingface:/app/models \
+  linkary/qwen-tts-server:latest
+```
+
+> **Tip:** To disable authentication entirely (e.g. for local development), leave `API_KEYS` empty or unset.
+
+### Step 2: Start the Server
+
+**Local (using run script):**
+
+```bash
+conda activate qwen-tts
+./run.sh
+```
+
+**Local (using raw Python):**
+
+```bash
+conda activate qwen-tts
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+**Docker (GPU):**
+
+```bash
+docker run -d --gpus all -p 8000:8000 \
+  -e API_KEYS=my-secret-key \
+  -v ~/.cache/huggingface:/app/models \
+  linkary/qwen-tts-server:latest
+```
+
+The server listens on `http://localhost:8000` by default. Verify it's running:
+
+```bash
+curl http://localhost:8000/health
+# {"status":"healthy", ...}
+```
+
+Check which models are loaded:
+
+```bash
+curl http://localhost:8000/health/models
+```
+
+### Step 3: Generate Speech via REST API
+
+All API endpoints require the `X-API-Key` header (unless authentication is disabled).
+
+#### Text-to-Speech (CustomVoice — preset speakers)
+
+Generate a WAV file using a preset speaker and save it locally:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/custom-voice/generate \
+  -H "X-API-Key: my-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello! This is a text to speech demo using the Qwen 3 TTS API server.",
+    "language": "English",
+    "speaker": "Ryan",
+    "response_format": "wav"
+  }' \
+  --output hello.wav
+```
+
+Play the result (Linux):
+
+```bash
+aplay hello.wav        # ALSA
+# or: ffplay -autoexit hello.wav
+```
+
+Add a style instruction for emotional control:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/custom-voice/generate \
+  -H "X-API-Key: my-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "I am so excited to share this news with you!",
+    "language": "English",
+    "speaker": "Aiden",
+    "instruct": "Speak in a cheerful and energetic tone",
+    "speed": 1.2,
+    "response_format": "wav"
+  }' \
+  --output excited.wav
+```
+
+#### Text-to-Speech (VoiceDesign — describe any voice)
+
+Create a completely custom voice from a natural language description:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/voice-design/generate \
+  -H "X-API-Key: my-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Welcome to our broadcast. Today we discuss the future of AI.",
+    "language": "English",
+    "instruct": "A deep, calm male voice with a professional radio host tone",
+    "response_format": "wav"
+  }' \
+  --output broadcast.wav
+```
+
+#### Chinese TTS Example
+
+```bash
+curl -X POST http://localhost:8000/api/v1/custom-voice/generate \
+  -H "X-API-Key: my-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "你好！欢迎使用语音合成接口。",
+    "language": "Chinese",
+    "speaker": "Serena",
+    "response_format": "wav"
+  }' \
+  --output hello_cn.wav
+```
+
+#### Get Available Speakers
+
+```bash
+curl http://localhost:8000/api/v1/custom-voice/speakers \
+  -H "X-API-Key: my-secret-key"
+```
+
+#### Get Supported Languages
+
+```bash
+curl http://localhost:8000/api/v1/custom-voice/languages \
+  -H "X-API-Key: my-secret-key"
+```
+
+> **Tip:** For the full API reference, visit `http://localhost:8000/docs` (Swagger UI) once the server is running.
 
 ## Configuration
 

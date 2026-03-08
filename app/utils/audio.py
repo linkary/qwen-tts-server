@@ -28,11 +28,8 @@ async def load_audio_from_url(url: str) -> Tuple[np.ndarray, int]:
         response = await client.get(url)
         response.raise_for_status()
         
-        # Save to temporary file and load with soundfile
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            tmp.write(response.content)
-            tmp.flush()
-            audio_data, sample_rate = sf.read(tmp.name)
+        # Read directly from memory to avoid temp file leaks
+        audio_data, sample_rate = sf.read(io.BytesIO(response.content))
         
         return audio_data, sample_rate
 

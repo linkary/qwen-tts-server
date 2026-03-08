@@ -1,14 +1,15 @@
-# Qwen3-TTS Server Docker Image
+# Qwen3-TTS Server Docker Image (Multi-stage Build)
 # 
 # Prerequisites: Run `./run.sh` or `npm run build` in frontend/ first
 # 
 # Build:
 #   docker build -t linkary/qwen-tts-server:latest .
 #   
-# Build with Chinese pip mirror:
-#   docker build --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple --build-arg PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn -t linkary/qwen-tts-server:latest .
 
-FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+# ==========================================
+# Stage 1: Builder (with CUDA compiler)
+# ==========================================
+FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-devel AS builder
 
 # Build arguments
 # Build arguments
@@ -22,46 +23,67 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies (single layer)
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
-    && add-apt-repository -y ppa:deadsnakes/ppa \
-    && apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 \
-    python3.12-dev \
-    python3.12-venv \
+    build-essential \
     git \
     wget \
     curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create virtual environment 
+# Note: The base image likely has python in /opt/conda. 
+# We'll use venv to keep our deps isolated and copyable.
+RUN python -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Install packaging tools
+RUN pip install --default-timeout=100 -i ${PIP_INDEX_URL} ${PIP_TRUSTED_HOST:+--trusted-host ${PIP_TRUSTED_HOST}} --upgrade pip wheel setuptools ninja packaging
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install dependencies from requirements.txt
+# Note: torch is commented out in requirements.txt
+RUN pip install --default-timeout=100 -i ${PIP_INDEX_URL} ${PIP_TRUSTED_HOST:+--trusted-host ${PIP_TRUSTED_HOST}} -r requirements.txt
+
+# Install Flash Attention 2
+# This requires nvcc which is present in the devel image
+RUN pip install --default-timeout=100 -i ${PIP_INDEX_URL} ${PIP_TRUSTED_HOST:+--trusted-host ${PIP_TRUSTED_HOST}} flash-attn>=2.5.0 --no-build-isolation
+
+# ==========================================
+# Stage 2: Runtime (Slimmer image)
+# ==========================================
+FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-runtime AS runtime
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/venv/bin:$PATH"
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
     ffmpeg \
     libsndfile1 \
     sox \
     libsox-fmt-all \
+    curl \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Set Python 3.12 as default and install pip
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
-
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt .
-
-# Install Python dependencies with configurable pip source
-RUN pip install -i ${PIP_INDEX_URL} ${PIP_TRUSTED_HOST:+--trusted-host ${PIP_TRUSTED_HOST}} -r requirements.txt
-
-# Try to install flash-attn (may fail on some systems)
-RUN pip install flash-attn>=2.5.0 --no-build-isolation 2>/dev/null || \
-    echo "Warning: flash-attn installation failed, continuing without it"
+# Copy virtual environment from builder
+COPY --from=builder /app/venv /app/venv
 
 # Copy application code
 COPY app/ ./app/
-
-# Copy pre-built frontend (run ./run.sh or npm run build first)
 COPY frontend/dist ./frontend/dist
 
 # Create directories for models and outputs
@@ -72,7 +94,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Run the application
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

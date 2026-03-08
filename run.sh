@@ -108,9 +108,28 @@ if [ "$DOCKER_MODE" = true ]; then
         echo "✅ Created .env file. Please edit if needed."
     fi
     
-    # Load PORT from .env for display (simple extraction for docker mode)
+    # Load PORT and API_KEYS from .env for display
     if [ -f .env ]; then
         PORT=$(grep "^PORT=" .env | cut -d'=' -f2)
+        _DOCKER_API_KEYS=$(grep "^API_KEYS=" .env | cut -d'=' -f2-)
+    fi
+    
+    # Build auth display for Docker
+    if [ -n "$_DOCKER_API_KEYS" ]; then
+        IFS=',' read -ra _DKEYS <<< "$_DOCKER_API_KEYS"
+        _DMASKED=()
+        for _dk in "${_DKEYS[@]}"; do
+            _dk=$(echo "$_dk" | xargs)
+            _dlen=${#_dk}
+            if [ "$_dlen" -le 4 ]; then
+                _DMASKED+=("****")
+            else
+                _DMASKED+=("${_dk:0:2}****${_dk: -2}")
+            fi
+        done
+        _DOCKER_AUTH="🔑 Auth: $(IFS=', '; echo "${_DMASKED[*]}")"
+    else
+        _DOCKER_AUTH="🔓 Auth: No authentication (open access)"
     fi
     
     docker-compose up -d
@@ -118,6 +137,7 @@ if [ "$DOCKER_MODE" = true ]; then
     echo "✅ Server started in Docker!"
     echo "   API: http://localhost:${PORT:-8000}"
     echo "   Docs: http://localhost:${PORT:-8000}/docs"
+    echo "   $_DOCKER_AUTH"
     echo ""
     echo "To view logs: docker-compose logs -f"
     echo "To stop: docker-compose down"
@@ -315,10 +335,31 @@ fi
 # Start Server
 # ==============================================================================
 
+# Build auth state display
+AUTH_DISPLAY=""
+if [ -n "$API_KEYS" ]; then
+    # Mask each key: show first 2 and last 2 chars, replace middle with ****
+    IFS=',' read -ra KEYS <<< "$API_KEYS"
+    MASKED_KEYS=()
+    for key in "${KEYS[@]}"; do
+        key=$(echo "$key" | xargs)  # trim whitespace
+        local_len=${#key}
+        if [ "$local_len" -le 4 ]; then
+            MASKED_KEYS+=("****")
+        else
+            MASKED_KEYS+=("${key:0:2}****${key: -2}")
+        fi
+    done
+    AUTH_DISPLAY="🔑 Auth: $(IFS=', '; echo "${MASKED_KEYS[*]}")"
+else
+    AUTH_DISPLAY="🔓 Auth: No authentication (open access)"
+fi
+
 echo ""
 echo "🚀 Starting Qwen3-TTS Server..."
 echo "   URL: $([ "$USE_SSL" = true ] && echo 'https' || echo 'http')://$SERVER_HOST:$SERVER_PORT"
 echo "   Docs: $([ "$USE_SSL" = true ] && echo 'https' || echo 'http')://$SERVER_HOST:$SERVER_PORT/docs"
+echo "   $AUTH_DISPLAY"
 echo ""
 
 # Run the server
