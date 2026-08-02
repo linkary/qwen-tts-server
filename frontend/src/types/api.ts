@@ -56,6 +56,12 @@ export interface ModelsHealthResponse {
   base_loaded: boolean;
 }
 
+export interface DevApiKeyResponse {
+  auth_required: boolean;
+  api_key: string | null;
+  key_count: number;
+}
+
 export interface CacheStatsResponse {
   enabled: boolean;
   size: number;

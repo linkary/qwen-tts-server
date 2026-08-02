@@ -72,11 +72,6 @@
       rgba(0, 0, 0, 0.03) 4px
     );
   }
-
-  /* Custom audio controls styling */
-  audio::-webkit-media-controls-panel {
-    @apply bg-bg-card;
-  }
 }
 
 /*

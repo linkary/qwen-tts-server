@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { UploadCloud } from 'lucide-react';
+import { AudioPreview } from '../../audio/AudioPreview';
 import { useTranslation } from '../../../i18n/I18nContext';
 import { useToast } from '../../../context/ToastContext';
 import { fileToBase64 } from '../../../utils/audio';
@@ -82,7 +83,7 @@ export function AudioUpload({ onAudioUploaded }: AudioUploadProps) {
             <span className="font-display text-sm text-text-primary">{uploadedFile.name}</span>
             <span className="text-xs text-text-muted">{formatFileSize(uploadedFile.size)}</span>
           </div>
-          {audioUrl && <audio controls src={audioUrl} className="w-full" />}
+          <AudioPreview audioUrl={audioUrl} />
         </div>
       )}
     </div>

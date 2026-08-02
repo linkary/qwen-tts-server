@@ -144,11 +144,15 @@ export function ApiDocsPanel({ isOpen, onClose, activeTab }: ApiDocsPanelProps) 
     </div>
   );
 
+  const renderDescription = (text: string, className?: string) => (
+    <div className={cn('p-md bg-bg-card border border-border-subtle rounded-md', className)}>
+      <p className="text-[0.8rem] text-text-secondary leading-relaxed">{text}</p>
+    </div>
+  );
+
   const renderSubTabContent = (subTab: ApiSubTab) => (
     <div className="space-y-md">
-      <div className="p-md bg-accent-cyan/5 border-l-[3px] border-accent-cyan rounded-r-md">
-        <p className="text-[0.8rem] text-text-secondary leading-relaxed">{subTab.description}</p>
-      </div>
+      {renderDescription(subTab.description)}
       {renderEndpointBadge(subTab.endpoint, subTab.docsAnchor)}
       {subTab.requestHeaders && renderHeaders(subTab.requestHeaders)}
       {subTab.requestParams && renderParamsTable(subTab.requestParams)}
@@ -164,9 +168,7 @@ export function ApiDocsPanel({ isOpen, onClose, activeTab }: ApiDocsPanelProps) 
       const currentSubTab = docs.subTabs.find(st => st.id === activeSubTab);
       return (
         <>
-          <div className="p-md bg-accent-cyan/5 border-l-[3px] border-accent-cyan rounded-r-md mb-md">
-            <p className="text-[0.8rem] text-text-secondary leading-relaxed">{docs.description}</p>
-          </div>
+          {renderDescription(docs.description, 'mb-md')}
           <div className="flex gap-xs mb-md border-b border-border-subtle" role="tablist">
             {docs.subTabs.map((st) => (
               <button
@@ -195,9 +197,7 @@ export function ApiDocsPanel({ isOpen, onClose, activeTab }: ApiDocsPanelProps) 
 
     return (
       <div className="space-y-md">
-        <div className="p-md bg-accent-cyan/5 border-l-[3px] border-accent-cyan rounded-r-md">
-          <p className="text-[0.8rem] text-text-secondary leading-relaxed">{docs.description}</p>
-        </div>
+        {renderDescription(docs.description)}
         {docs.endpoint && renderEndpointBadge(docs.endpoint, docs.docsAnchor)}
         {docs.requestHeaders && renderHeaders(docs.requestHeaders)}
         {docs.requestParams && renderParamsTable(docs.requestParams)}
@@ -211,11 +211,7 @@ export function ApiDocsPanel({ isOpen, onClose, activeTab }: ApiDocsPanelProps) 
               {endpoint.title}
             </h3>
             {renderEndpointBadge(endpoint.endpoint)}
-            {endpoint.description && (
-              <div className="p-md bg-accent-cyan/5 border-l-[3px] border-accent-cyan rounded-r-md mb-md">
-                <p className="text-[0.8rem] text-text-secondary leading-relaxed">{endpoint.description}</p>
-              </div>
-            )}
+            {endpoint.description && renderDescription(endpoint.description, 'mb-md')}
             {endpoint.responseExample && renderCodeBlock('Response Example', endpoint.responseExample, false)}
           </div>
         ))}

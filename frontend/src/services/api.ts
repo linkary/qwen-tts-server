@@ -8,6 +8,7 @@ import type {
   AudioResponse,
   HealthResponse,
   ModelsHealthResponse,
+  DevApiKeyResponse,
   CacheStatsResponse,
   CreatePromptResponse,
   UploadRefAudioResponse,
@@ -58,6 +59,19 @@ export async function checkHealth(): Promise<HealthResponse> {
 export async function checkModelsHealth(): Promise<ModelsHealthResponse> {
   const response = await fetch(`${CONFIG.baseUrl}${CONFIG.endpoints.modelsHealth}`);
   return handleResponse<ModelsHealthResponse>(response);
+}
+
+/**
+ * Fetch the API key this server accepts.
+ *
+ * Only available when the server was started with EXPOSE_API_KEY=true; resolves to null
+ * otherwise, so "feature absent" arrives as data rather than an exception the caller
+ * would have to recognise by matching on an error message.
+ */
+export async function fetchDevApiKey(): Promise<DevApiKeyResponse | null> {
+  const response = await fetch(`${CONFIG.baseUrl}${CONFIG.endpoints.dev.apiKey}`);
+  if (response.status === 404) return null;
+  return handleResponse<DevApiKeyResponse>(response);
 }
 
 /**

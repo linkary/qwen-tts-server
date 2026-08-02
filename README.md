@@ -198,6 +198,25 @@ docker run -d --gpus all -p 8000:8000 \
 
 > **Tip:** To disable authentication entirely (e.g. for local development), leave `API_KEYS` empty or unset.
 
+**Optional — skip pasting the key into the demo UI:**
+
+Set `EXPOSE_API_KEY=true` and the built-in web UI grows a "Fetch from Server" button in
+Settings that pulls the key directly, so you never have to copy it into the browser.
+
+```bash
+# .env
+API_KEYS=my-secret-key
+EXPOSE_API_KEY=true
+```
+
+This adds `GET /api/v1/dev/api-key`, which returns the key **without authenticating** —
+that is the whole point, and the reason it is off by default. It is refused unless
+`ENV != production`, and it only answers requests with no `Origin` header (curl) or a
+loopback `Origin`, so a random website you visit cannot read your key. It cannot protect
+you from other processes on the same machine. **Leave it off on any server another
+machine can reach.** When enabled, the server logs a warning at startup and on every
+fetch (with the key masked).
+
 ### Step 2: Start the Server
 
 **Local (using run script):**

@@ -19,5 +19,9 @@ export const CONFIG = {
       cacheStats: '/api/v1/base/cache/stats',
       cacheClear: '/api/v1/base/cache/clear',
     },
+    dev: {
+      // Only present when the server was started with EXPOSE_API_KEY=true.
+      apiKey: '/api/v1/dev/api-key',
+    },
   },
 };

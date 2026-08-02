@@ -203,3 +203,18 @@ class ModelsHealthResponse(BaseModel):
     voice_design_loaded: bool
     base_loaded: bool
     tokenizer_loaded: bool
+
+
+class DevApiKeyResponse(BaseModel):
+    """Development-only API key discovery response"""
+    auth_required: bool = Field(
+        description="False when the server has no API_KEYS configured, i.e. auth is disabled"
+    )
+    api_key: Optional[str] = Field(
+        default=None,
+        description="First configured API key; null when auth is disabled"
+    )
+    key_count: int = Field(
+        default=0,
+        description="Number of configured API keys"
+    )

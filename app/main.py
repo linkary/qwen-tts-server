@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 from app import __version__
 from app.config import settings
 from app.models.manager import model_manager
-from app.routers import health, custom_voice, voice_design, base
+from app.routers import health, custom_voice, voice_design, base, dev
 
 # Configure logging
 logging.basicConfig(
@@ -146,6 +146,17 @@ app.include_router(health.router)
 app.include_router(custom_voice.router)
 app.include_router(voice_design.router)
 app.include_router(base.router)
+
+# Development-only: hands the configured API key to the bundled demo UI. Opt-in, so an
+# ordinary deployment has no such route at all -- an absent route cannot be reached by a
+# later refactor and cannot leak into /openapi.json. Note that ENV alone would be a weak
+# gate here: it defaults to "development" and neither .env nor docker-compose.yml set it.
+if settings.expose_api_key and settings.env != "production":
+    app.include_router(dev.router)
+    logger.warning(
+        "EXPOSE_API_KEY is enabled: GET /api/v1/dev/api-key will return the configured "
+        "API key to any page served from localhost. Disable it on shared servers."
+    )
 
 
 @app.get("/demo")
