@@ -1,6 +1,10 @@
 """
 Pytest configuration and shared fixtures
 """
+import importlib.util
+import sys
+import types
+
 import pytest
 import os
 import tempfile
@@ -15,6 +19,42 @@ from tests.utils import (
     create_stereo_audio,
     save_test_audio
 )
+
+
+def _stub_qwen_tts_if_missing() -> None:
+    """
+    Let the API suites run without the qwen_tts package installed.
+
+    app.models.manager imports Qwen3TTSModel at module scope purely as a type,
+    and every API test replaces the model getters with mocks, so the real
+    package is never exercised. Without this shim the entire integration and e2e
+    suite errors at collection on any machine that lacks the model package (CI
+    runners without a GPU, for instance) — which is how the concurrency code
+    came to have no end-to-end coverage at all.
+
+    Only installed when the real package is absent, so a machine that has it
+    tests against the real thing.
+    """
+    if importlib.util.find_spec('qwen_tts') is not None:
+        return
+
+    stub = types.ModuleType('qwen_tts')
+
+    class Qwen3TTSModel:  # noqa: D401 - stand-in for the real model class
+        """Placeholder; API tests supply mocks in its place."""
+
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError(
+                'qwen_tts is not installed: tests must mock the model getters '
+                'rather than instantiate a model.'
+            )
+
+    stub.Qwen3TTSModel = Qwen3TTSModel
+    stub.__spec__ = importlib.util.spec_from_loader('qwen_tts', loader=None)
+    sys.modules['qwen_tts'] = stub
+
+
+_stub_qwen_tts_if_missing()
 
 
 # Configure test environment
@@ -159,12 +199,15 @@ def api_client():
         TestClient instance
     """
     from app.main import app
-    
-    client = TestClient(app)
-    # Add default API key header
-    client.headers = {"X-API-Key": "test-api-key"}
-    
-    return client
+
+    # The `with` block is required: without it Starlette never runs the lifespan
+    # handler, so init_inference() is skipped and every request in the suite
+    # exercises the uninitialized fallback instead of the real concurrency path.
+    with TestClient(app) as client:
+        # Add default API key header
+        client.headers = {"X-API-Key": "test-api-key"}
+
+        yield client
 
 
 @pytest.fixture

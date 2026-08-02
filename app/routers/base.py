@@ -29,10 +29,9 @@ from app.utils.audio import (
     apply_speed,
 )
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
-from app.utils.caching import get_voice_cache
+from app.utils.caching import get_voice_cache, get_or_create_voice_prompt
 from app.utils.metrics import PerformanceTracker
 from app.utils.inference import run_inference
-from app.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
@@ -85,50 +84,23 @@ async def clone_voice(
         
         audio_data, sample_rate = ref_audio
         
-        # Try to use cache if enabled
-        voice_prompt = None
-        if settings.voice_cache_enabled:
-            cache = get_voice_cache()
-            voice_prompt = cache.get(
-                audio_data,
-                sample_rate,
-                request.ref_text,
-                request.x_vector_only_mode
-            )
-            if voice_prompt is not None:
-                tracker.set_cache_status("hit")
-                logger.debug("Using cached voice prompt")
-        
-        # Create prompt if not cached
-        if voice_prompt is None:
-            tracker.set_cache_status("miss")
-            voice_prompt = await run_inference(
-                model.create_voice_clone_prompt,
-                ref_audio=(audio_data, sample_rate),
-                ref_text=request.ref_text if not request.x_vector_only_mode else None,
-                x_vector_only_mode=request.x_vector_only_mode,
-                timeout=app_settings.inference_timeout_seconds,
-            )
-            
-            # Cache the prompt if enabled
-            if settings.voice_cache_enabled:
-                cache = get_voice_cache()
-                cache.put(
-                    audio_data,
-                    sample_rate,
-                    request.ref_text,
-                    request.x_vector_only_mode,
-                    voice_prompt
-                )
-                logger.debug("Cached voice prompt")
-        
+        # Resolve the voice prompt: served from cache, or extracted exactly once
+        # per cache key even when identical requests arrive concurrently.
+        voice_prompt, cache_status = await get_or_create_voice_prompt(
+            model,
+            audio_data,
+            sample_rate,
+            request.ref_text,
+            request.x_vector_only_mode,
+        )
+        tracker.set_cache_status(cache_status)
+
         # Generate audio with voice clone prompt
         wavs, sr = await run_inference(
             model.generate_voice_clone,
             text=request.text,
             language=request.language,
             voice_clone_prompt=voice_prompt,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Track metrics
@@ -214,50 +186,23 @@ async def clone_voice_stream(
         
         audio_data, sample_rate = ref_audio
         
-        # Try to use cache if enabled
-        voice_prompt = None
-        if settings.voice_cache_enabled:
-            cache = get_voice_cache()
-            voice_prompt = cache.get(
-                audio_data,
-                sample_rate,
-                request.ref_text,
-                request.x_vector_only_mode
-            )
-            if voice_prompt is not None:
-                tracker.set_cache_status("hit")
-                logger.debug("Using cached voice prompt")
-        
-        # Create prompt if not cached
-        if voice_prompt is None:
-            tracker.set_cache_status("miss")
-            voice_prompt = await run_inference(
-                model.create_voice_clone_prompt,
-                ref_audio=(audio_data, sample_rate),
-                ref_text=request.ref_text if not request.x_vector_only_mode else None,
-                x_vector_only_mode=request.x_vector_only_mode,
-                timeout=app_settings.inference_timeout_seconds,
-            )
-            
-            # Cache the prompt if enabled
-            if settings.voice_cache_enabled:
-                cache = get_voice_cache()
-                cache.put(
-                    audio_data,
-                    sample_rate,
-                    request.ref_text,
-                    request.x_vector_only_mode,
-                    voice_prompt
-                )
-                logger.debug("Cached voice prompt")
-        
+        # Resolve the voice prompt: served from cache, or extracted exactly once
+        # per cache key even when identical requests arrive concurrently.
+        voice_prompt, cache_status = await get_or_create_voice_prompt(
+            model,
+            audio_data,
+            sample_rate,
+            request.ref_text,
+            request.x_vector_only_mode,
+        )
+        tracker.set_cache_status(cache_status)
+
         # Generate audio with voice clone prompt
         wavs, sr = await run_inference(
             model.generate_voice_clone,
             text=request.text,
             language=request.language,
             voice_clone_prompt=voice_prompt,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -341,7 +286,6 @@ async def create_voice_clone_prompt(
             ref_audio=ref_audio,
             ref_text=request.ref_text if not request.x_vector_only_mode else None,
             x_vector_only_mode=request.x_vector_only_mode,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Generate unique prompt ID
@@ -398,7 +342,6 @@ async def generate_with_voice_clone_prompt(
             text=request.text,
             language=request.language,
             voice_clone_prompt=prompt_data["prompt_items"],
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Return based on format

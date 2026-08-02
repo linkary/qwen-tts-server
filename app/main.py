@@ -31,8 +31,8 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Qwen3-TTS API Server")
     logger.info(f"Version: {__version__}")
     
-    # Initialize inference runner (semaphore must be created in running event loop)
-    init_inference(max_concurrent=settings.max_concurrent_inferences)
+    # Initialize inference runner (reads max_concurrent from settings)
+    init_inference()
     
     # Preload models if configured
     if settings.preload_models:

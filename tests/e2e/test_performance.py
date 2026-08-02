@@ -189,13 +189,20 @@ class TestRTFAccuracy:
             # Check RTF header
             if "X-RTF" in response.headers:
                 rtf = float(response.headers["X-RTF"])
-                # RTF should be reasonable (between 0.01 and 100)
-                assert 0.01 < rtf < 100, f"RTF {rtf} seems unreasonable"
-            
+                # Generation is mocked here, so it returns orders of magnitude
+                # faster than real time. Any positive lower bound is flaky at the
+                # header's 3-decimal precision — under load the mocked call
+                # rounds to 0.000. The upper bound is the half that carries
+                # signal: it catches an RTF inflated by queue wait or by a
+                # non-monotonic clock. tests/real_model asserts `> 0`, where the
+                # timing is real and the check means something.
+                assert 0 <= rtf < 100, f"RTF {rtf} seems unreasonable"
+
             # Check generation time
             if "X-Generation-Time" in response.headers:
                 gen_time = float(response.headers["X-Generation-Time"])
-                assert gen_time > 0, "Generation time should be positive"
+                # Same precision caveat as X-RTF above.
+                assert 0 <= gen_time < 60, "Generation time should be sane"
             
             # Check audio duration
             if "X-Audio-Duration" in response.headers:

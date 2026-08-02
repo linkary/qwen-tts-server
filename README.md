@@ -378,7 +378,32 @@ AUDIO_UPLOAD_MAX_DURATION=60.0
 ENABLE_PERFORMANCE_LOGGING=true
 ENABLE_WARMUP=true
 WARMUP_TEXT="This is a warmup test to initialize the model."
+
+# Concurrency Control (NEW in v1.1.2)
+# Max parallel GPU inferences (must be >= 1). Keep at 1 unless every concurrent
+# inference fits in VRAM at once — all models load onto the single device named
+# by CUDA_DEVICE, so raising this co-locates inferences on that one GPU.
+MAX_CONCURRENT_INFERENCES=1
+# Max seconds a request waits in the queue before a 503 (must be > 0). Bounds the
+# WAIT only; a running inference has no deadline, since a native GPU call cannot
+# be preempted from Python. Poll GET /health/inference to spot a stuck inference.
+INFERENCE_QUEUE_TIMEOUT_SECONDS=300
 ```
+
+When the queue is saturated, requests are shed with `503` and a `Retry-After`
+header rather than queued indefinitely. `GET /health/inference` reports the
+state behind that decision:
+
+```bash
+curl http://localhost:8000/health/inference
+# {"initialized":true,"max_concurrent":1,"in_flight":1,"queued":3,
+#  "rejected_total":12,"queue_timeout_seconds":300.0}
+```
+
+`in_flight` stuck at `max_concurrent` with a climbing `rejected_total` that never
+drains means an inference is not returning; the process needs recycling. Note
+that `GET /health` cannot show this — it deliberately avoids the inference path,
+so it stays `healthy` while every permit is held.
 
 ## API Documentation
 

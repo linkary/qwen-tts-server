@@ -17,6 +17,10 @@ python-dotenv>=1.0.0
 aiofiles>=23.2.1
 sse-starlette>=2.0.0
 httpx>=0.26.0
+# Imported directly by app/utils/inference.py for CapacityLimiter's
+# acquire_on_behalf_of / statistics, so declared explicitly rather than relied
+# on as a transitive dependency of starlette.
+anyio>=4.0.0
 
 # TTS model
 qwen-tts>=0.0.5

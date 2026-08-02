@@ -23,7 +23,6 @@ from app.utils.audio import numpy_to_wav_bytes, numpy_to_base64, apply_speed
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
 from app.utils.metrics import PerformanceTracker
 from app.utils.inference import run_inference
-from app.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +121,6 @@ async def generate_custom_voice(
             language=request.language,
             speaker=request.speaker,
             instruct=request.instruct if request.instruct else "",
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -159,6 +157,11 @@ async def generate_custom_voice(
                 }
             )
     
+    except HTTPException:
+        # Preserve deliberate status codes (e.g. the 503 raised when the
+        # inference queue is saturated); HTTPException subclasses Exception, so
+        # without this the handler below would rewrite them all to 500.
+        raise
     except Exception as e:
         logger.error(f"Error generating custom voice: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -191,7 +194,6 @@ async def generate_custom_voice_stream(
             language=request.language,
             speaker=request.speaker,
             instruct=request.instruct if request.instruct else "",
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -224,6 +226,8 @@ async def generate_custom_voice_stream(
         
         return EventSourceResponse(generate())
     
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error generating custom voice stream: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -268,7 +272,6 @@ async def generate_custom_voice_batch(
             language=request.languages,
             speaker=request.speakers,
             instruct=instructs,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Convert to base64

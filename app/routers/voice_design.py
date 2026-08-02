@@ -18,7 +18,6 @@ from app.utils.audio import numpy_to_wav_bytes, numpy_to_base64, apply_speed
 from app.utils.streaming import stream_audio_base64_chunks, create_sse_message
 from app.utils.metrics import PerformanceTracker
 from app.utils.inference import run_inference
-from app.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +50,6 @@ async def generate_voice_design(
             text=request.text,
             language=request.language,
             instruct=request.instruct,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -88,6 +86,11 @@ async def generate_voice_design(
                 }
             )
     
+    except HTTPException:
+        # Preserve deliberate status codes (e.g. the 503 raised when the
+        # inference queue is saturated); HTTPException subclasses Exception, so
+        # without this the handler below would rewrite them all to 500.
+        raise
     except Exception as e:
         logger.error(f"Error generating voice design: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -119,7 +122,6 @@ async def generate_voice_design_stream(
             text=request.text,
             language=request.language,
             instruct=request.instruct,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Apply speed adjustment if requested
@@ -152,6 +154,8 @@ async def generate_voice_design_stream(
         
         return EventSourceResponse(generate())
     
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error generating voice design stream: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -186,7 +190,6 @@ async def generate_voice_design_batch(
             text=request.texts,
             language=request.languages,
             instruct=request.instructs,
-            timeout=app_settings.inference_timeout_seconds,
         )
         
         # Convert to base64

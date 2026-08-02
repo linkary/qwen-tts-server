@@ -9,6 +9,10 @@ from collections import OrderedDict
 from typing import Optional, Dict, Any, Tuple
 import numpy as np
 
+from app.config import settings
+from app.utils.inference import run_inference
+from app.utils.keyed_lock import KeyedLock
+
 logger = logging.getLogger(__name__)
 
 
@@ -71,7 +75,23 @@ class VoicePromptCache:
         # Combine into cache key
         cache_key = f"{audio_hash}_{text_part[:32]}_{mode_part}_{sample_rate}"
         return hashlib.md5(cache_key.encode()).hexdigest()
-    
+
+    def make_key(
+        self,
+        audio_data: np.ndarray,
+        sample_rate: int,
+        ref_text: Optional[str],
+        x_vector_only_mode: bool
+    ) -> str:
+        """
+        Public cache key for a request, without touching hit/miss statistics.
+
+        Used to coalesce concurrent requests that would produce the same entry.
+        """
+        return self._generate_cache_key(
+            audio_data, sample_rate, ref_text, x_vector_only_mode
+        )
+
     def get(
         self,
         audio_data: np.ndarray,
@@ -221,5 +241,67 @@ def get_voice_cache() -> VoicePromptCache:
                     f"Initialized voice cache: max_size={settings.voice_cache_max_size}, "
                     f"ttl={settings.voice_cache_ttl_seconds}s"
                 )
-    
+
     return _voice_cache
+
+
+# Serializes prompt creation per cache key so that N identical concurrent
+# requests perform one extraction instead of N.
+_prompt_locks = KeyedLock()
+
+
+async def get_or_create_voice_prompt(
+    model: Any,
+    audio_data: np.ndarray,
+    sample_rate: int,
+    ref_text: Optional[str],
+    x_vector_only_mode: bool,
+) -> Tuple[Any, str]:
+    """
+    Resolve a voice clone prompt, extracting it at most once per cache key.
+
+    Without the per-key lock, `get` -> `await extract` -> `put` is a
+    check-then-act straddling an await: identical concurrent requests all miss,
+    all extract, and all but one result is discarded — which with a small
+    MAX_CONCURRENT_INFERENCES makes duplicate requests slower than having no
+    cache at all, since the redundant extractions also occupy GPU permits.
+
+    Args:
+        model: Base model exposing create_voice_clone_prompt.
+        audio_data: Reference audio samples.
+        sample_rate: Sample rate of audio_data.
+        ref_text: Reference transcript, or None in x-vector-only mode.
+        x_vector_only_mode: Whether to build an x-vector-only prompt.
+
+    Returns:
+        Tuple of (prompt, cache_status) where cache_status is one of
+        'hit', 'miss' or 'disabled'.
+    """
+    async def extract() -> Any:
+        return await run_inference(
+            model.create_voice_clone_prompt,
+            ref_audio=(audio_data, sample_rate),
+            ref_text=ref_text if not x_vector_only_mode else None,
+            x_vector_only_mode=x_vector_only_mode,
+        )
+
+    if not settings.voice_cache_enabled:
+        return await extract(), "disabled"
+
+    cache = get_voice_cache()
+    cache_key = cache.make_key(audio_data, sample_rate, ref_text, x_vector_only_mode)
+
+    async with _prompt_locks.acquire(cache_key):
+        # Re-check under the lock: a request holding the same key may have
+        # populated the cache while this one waited.
+        prompt = cache.get(audio_data, sample_rate, ref_text, x_vector_only_mode)
+        if prompt is not None:
+            logger.debug("Using cached voice prompt")
+            return prompt, "hit"
+
+        prompt = await extract()
+        cache.put(
+            audio_data, sample_rate, ref_text, x_vector_only_mode, prompt
+        )
+        logger.debug("Cached voice prompt")
+        return prompt, "miss"

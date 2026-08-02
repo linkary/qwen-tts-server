@@ -134,11 +134,23 @@ class Settings(BaseSettings):
     # Concurrency
     max_concurrent_inferences: int = Field(
         default=1,
-        description="Max parallel GPU inferences (1 for single GPU)"
+        ge=1,
+        description=(
+            "Max parallel GPU inferences. Keep at 1 unless every concurrent "
+            "inference fits in VRAM simultaneously — all models share the single "
+            "device given by CUDA_DEVICE, so raising this co-locates inferences "
+            "on one GPU rather than spreading them across several."
+        )
     )
-    inference_timeout_seconds: float = Field(
+    inference_queue_timeout_seconds: float = Field(
         default=300.0,
-        description="Max time (seconds) a request waits in queue before 503"
+        gt=0,
+        description=(
+            "Max time (seconds) a request waits in the queue before 503. This "
+            "bounds the WAIT only: a running inference has no deadline, because "
+            "a native GPU call cannot be preempted from Python. Use "
+            "/health/inference to detect an inference that never returns."
+        )
     )
     
     class Config:

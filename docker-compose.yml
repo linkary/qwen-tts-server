@@ -33,6 +33,13 @@ services:
       - HOST=0.0.0.0
       - PORT=8000
       
+      # Concurrency Control
+      # Keep MAX_CONCURRENT_INFERENCES at 1 unless every concurrent inference
+      # fits in VRAM simultaneously — all models share the CUDA_DEVICE above.
+      - MAX_CONCURRENT_INFERENCES=${MAX_CONCURRENT_INFERENCES:-1}
+      # Bounds the queue wait only; a running inference has no deadline.
+      - INFERENCE_QUEUE_TIMEOUT_SECONDS=${INFERENCE_QUEUE_TIMEOUT_SECONDS:-300}
+
       # Model Caching
       - HF_HOME=/app/models
       - MODEL_CACHE_DIR=/app/models

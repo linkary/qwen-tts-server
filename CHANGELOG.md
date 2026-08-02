@@ -7,10 +7,23 @@ All notable changes to the Qwen3-TTS API Server project.
 ### Improvements
 
 #### Concurrent Request Handling
-- All model inference calls now run in a background thread pool via `run_in_executor`, keeping the event loop responsive
-- Semaphore-based GPU concurrency control (`MAX_CONCURRENT_INFERENCES`, default 1 for single GPU)
-- Timeout-based 503 rejection when the queue is full (`INFERENCE_TIMEOUT_SECONDS`, default 300s / 5 min)
-- Health checks and SSE streams no longer block during inference
+- All model inference calls now run in a worker thread, keeping the event loop responsive during generation
+- GPU concurrency capped by an `anyio.CapacityLimiter` (`MAX_CONCURRENT_INFERENCES`, default 1 for single GPU, must be >= 1)
+- Timeout-based 503 rejection when the queue is full, with a `Retry-After` header
+  (`INFERENCE_QUEUE_TIMEOUT_SECONDS`, default 300s / 5 min, must be > 0). This bounds
+  the queue wait only — a running inference has no deadline, because a native GPU call
+  cannot be preempted from Python
+- The concurrency permit is released from the worker thread rather than from the awaiting
+  request, so a cancelled or disconnected client cannot hand its permit to the next
+  request while its inference is still on the GPU
+- New `GET /health/inference` reports in-flight, queued and shed request counts. `/health`
+  deliberately does not touch the inference path, so it stays green while every permit is
+  held; this endpoint is what distinguishes idle from saturated from wedged
+- Concurrent voice-clone requests that share a reference audio now extract the prompt once
+  and share the result, instead of each extracting a copy and discarding all but one
+- `/health` and non-streaming endpoints no longer block during inference. Note that
+  `-stream` endpoints still buffer the full generation before the first SSE frame; their
+  time-to-first-byte is unchanged by this release
 
 #### Frontend Demo Page
 - Configurable API base URL via `VITE_API_BASE_URL` environment variable for direct backend access during development
