@@ -18,6 +18,8 @@ import { base64ToBlob } from '../../../utils/audio';
 import { RECORDING_PROMPTS } from '../../../config/recordingPrompts';
 import type { AudioMetrics } from '../../../types/audio';
 import { cn } from '../../../utils/cn';
+import { useCrossfade } from '../../../hooks/useCrossfade';
+
 export function VoiceCloneTab() {
   const t = useTranslation();
   const { language } = useI18n();
@@ -38,6 +40,9 @@ export function VoiceCloneTab() {
   const { showToast } = useToast();
 
   const [activeSubTab, setActiveSubTab] = useState<'upload' | 'record'>('upload');
+  // Only the rendered panel lags behind; the sub-tab buttons and the submit handlers
+  // keep reading activeSubTab, so a click is always acted on against the live choice.
+  const subTab = useCrossfade(activeSubTab);
   const [refText, setRefText] = useState('');
   const [xVectorOnly, setXVectorOnly] = useState(false);
   const [text, setText] = useState(t('defaultTextVoiceClone'));
@@ -264,8 +269,12 @@ export function VoiceCloneTab() {
             </div>
 
             {/* Tab Content */}
-            <div className="animate-fadeIn">
-              {activeSubTab === 'upload' ? (
+            <div
+              key={subTab.rendered}
+              onAnimationEnd={subTab.onAnimationEnd}
+              className={subTab.phase === 'leaving' ? 'animate-tabOut' : 'animate-tabIn'}
+            >
+              {subTab.rendered === 'upload' ? (
                 <AudioUpload onAudioUploaded={handleAudioUploaded} />
               ) : (
                 <AudioRecorder onAudioRecorded={handleAudioRecorded} />

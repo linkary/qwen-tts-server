@@ -1,10 +1,25 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
-/* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Fonts are loaded via <link> in index.html — see the comment there for why. */
 
 @layer base {
+  /*
+   * Motion tokens — the single source of truth for all timing in the app.
+   * tailwind.config.js animations and component transition utilities both read
+   * these, so a curve is never redefined in two places.
+   */
+  :root {
+    --dur-exit: 120ms;
+    --dur-enter: 220ms;
+    --dur-panel: 320ms;
+
+    /* Decisive start, soft settle — no overshoot. Used for everything entering. */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    /* Accelerates away. Used for everything leaving. */
+    --ease-in-quad: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -27,9 +42,22 @@
     @apply font-display;
   }
 
-  /* Smooth transitions for interactive elements */
-  button, .tab, .card, a, input, textarea, select {
-    @apply transition-all duration-150 ease-in-out;
+  /*
+   * Default affordance transition for interactive elements.
+   *
+   * Only paint-level properties are listed. This was previously `transition-all`,
+   * which also animated `right` / `width` / `height` — that fought the API drawer's
+   * position change and forced a layout pass every frame. Components that do need
+   * to animate transforms (buttons that scale on hover, the drawer) declare their
+   * own transition utility, which wins over this base rule.
+   *
+   * `.tab` and `.card` were dropped: neither class exists: TabNavigation and Card
+   * are both built from utility classes, so those two selectors matched nothing.
+   */
+  button, a, input, textarea, select {
+    transition-property: color, background-color, border-color, box-shadow, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
   }
 
   /* Scan-line overlay effect */
@@ -48,6 +76,30 @@
   /* Custom audio controls styling */
   audio::-webkit-media-controls-panel {
     @apply bg-bg-card;
+  }
+}
+
+/*
+ * Respect the OS "reduce motion" setting. This UI layers a scan-line overlay,
+ * pulsing glows and a VU meter, so honouring the preference matters here.
+ *
+ * Durations collapse to 1ms rather than 0s on purpose: `animationend` must still
+ * fire, otherwise the crossfade state machine in useCrossfade would wait forever
+ * for an event that never comes. (The hook also checks the preference directly
+ * and skips animating altogether — this is the stylesheet half of the guarantee.)
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
 }
 
