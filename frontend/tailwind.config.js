@@ -94,22 +94,55 @@ export default {
           },
         },
         'fadeIn': {
-          'from': { 
+          'from': {
             opacity: '0',
             transform: 'translateY(8px)'
           },
-          'to': { 
+          'to': {
             opacity: '1',
             transform: 'translateY(0)'
           },
         },
+        // Tab content enters from below and leaves upward: one axis, one story.
+        // The exit travels less far than the entrance so it reads as "get out of
+        // the way" rather than as a second animation to sit through.
+        'tabIn': {
+          'from': {
+            opacity: '0',
+            transform: 'translateY(10px)'
+          },
+          'to': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          },
+        },
+        'tabOut': {
+          'from': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          },
+          'to': {
+            opacity: '0',
+            transform: 'translateY(-6px)'
+          },
+        },
       },
+      // Durations and curves come from the --dur-* / --ease-* custom properties
+      // defined in src/styles/globals.css, so they are declared exactly once.
+      // Literal fallbacks keep the shorthand valid if a variable ever goes missing.
       animation: {
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
         'vu-bounce': 'vu-bounce 0.5s ease-in-out infinite',
-        'slideInRight': 'slideInRight 0.3s ease-out',
-        'slideUp': 'slideUp 0.3s ease-out',
-        'fadeIn': 'fadeIn 0.3s ease-out',
+        'slideInRight':
+          'slideInRight var(--dur-panel, 320ms) var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both',
+        'slideUp':
+          'slideUp var(--dur-panel, 320ms) var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both',
+        'fadeIn':
+          'fadeIn var(--dur-enter, 220ms) var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both',
+        'tabIn':
+          'tabIn var(--dur-enter, 220ms) var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both',
+        'tabOut':
+          'tabOut var(--dur-exit, 120ms) var(--ease-in-quad, cubic-bezier(0.55, 0, 1, 0.45)) both',
       },
     },
   },

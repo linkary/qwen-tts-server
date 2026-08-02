@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AudioWaveform } from '../../audio/AudioWaveform';
+import { AudioPreview } from '../../audio/AudioPreview';
 import { Mic, Square } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { useTranslation } from '../../../i18n/I18nContext';
@@ -56,11 +57,11 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
   return (
     <div>
       {/* Recording Prompt */}
-      <div className="mb-lg p-lg bg-gradient-to-br from-[rgba(0,245,212,0.08)] to-[rgba(255,107,107,0.05)] border border-accent-cyan rounded-lg">
+      <div className="mb-lg p-lg bg-bg-surface border border-border-subtle rounded-lg">
         <div className="font-display text-xs font-semibold text-accent-cyan uppercase tracking-widest mb-sm">
           {t('readAloud')}
         </div>
-        <div className="text-lg leading-relaxed text-text-primary p-md bg-bg-card rounded-md mb-sm border-l-[3px] border-accent-cyan">
+        <div className="text-lg leading-relaxed text-text-primary p-md bg-bg-card border border-border-subtle rounded-md mb-sm">
           {promptText}
         </div>
         <div className="text-xs text-text-muted italic">{t('recordingTip')}</div>
@@ -116,7 +117,7 @@ export function AudioRecorder({ onAudioRecorded }: AudioRecorderProps) {
             <span className="font-display text-sm text-text-primary">{t('recordedAudio')}</span>
             <span className="text-xs text-text-muted">{formatFileSize(audioBlob.size)}</span>
           </div>
-          <audio controls src={audioUrl} className="w-full" />
+          <AudioPreview audioUrl={audioUrl} />
         </div>
       )}
     </div>

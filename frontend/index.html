@@ -6,6 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Interactive demo for Qwen3-TTS API - Generate speech with custom voices, voice design, and voice cloning">
     <title>Qwen3-TTS Demo | Voice Laboratory</title>
+    <!--
+      Fonts were previously pulled in with `@import url(...)` from globals.css, but it
+      sat after `@config`, so PostCSS discarded it ("@import must precede all other
+      statements") and the whole UI silently fell back to generic system fonts.
+      Loading them here also avoids the request chaining an `@import` would cause.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap"
+    />
   </head>
   <body>
     <div id="root"></div>

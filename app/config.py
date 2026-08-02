@@ -39,6 +39,14 @@ class Settings(BaseSettings):
         default="",
         description="Comma-separated list of API keys for authentication"
     )
+    expose_api_key: bool = Field(
+        default=False,
+        description=(
+            "Development only: expose GET /api/v1/dev/api-key so the bundled demo UI can "
+            "fetch the configured key instead of asking the user to paste it. Never enable "
+            "on a server that is reachable from another machine."
+        )
+    )
     host: str = Field(default="0.0.0.0", description="Server host")
     port: int = Field(default=8000, description="Server port")
     cors_origins: str = Field(
