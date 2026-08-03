@@ -3,6 +3,10 @@
 # Docker Hub publish script for Qwen3-TTS Server
 # Usage: ./scripts/docker-publish.sh [VERSION]
 # Example: ./scripts/docker-publish.sh 1.0.0
+#
+# This is the local/manual publishing path. CI publishes through
+# .github/workflows/docker-publish.yml instead, so that it can use buildx
+# layer caching and docker/metadata-action tagging.
 
 set -e
 
@@ -55,8 +59,8 @@ fi
 
 cd frontend
 
-echo "   Running npm install..."
-npm install
+echo "   Running npm ci..."
+npm ci
 
 echo "   Running npm run build..."
 npm run build
