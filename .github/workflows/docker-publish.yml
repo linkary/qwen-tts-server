@@ -1,11 +1,25 @@
 name: Docker Publish
 
 on:
+  # Build (but do not publish) on PRs, so a broken image is caught before it
+  # can reach main. This is what the CUDA-mismatch breakage needed.
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
     tags:
       - 'v*'
+  workflow_dispatch:
+
+# Pushing main and a version tag at the same commit fires two runs. Serialise
+# those by commit so the second run is a near-total layer cache hit instead of a
+# full rebuild, and do not cancel: the tag run publishes the version tag that
+# the branch run does not. Superseded PR builds, by contrast, are worth killing.
+concurrency:
+  group: docker-publish-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-and-publish:
@@ -13,38 +27,59 @@ jobs:
     environment: production
     permissions:
       contents: read
-      packages: write
+
+    env:
+      # Publish only from main and version tags. Everything else -- pull
+      # requests (ref is refs/pull/N/merge) and manual dispatches on a feature
+      # branch -- builds and verifies without touching Docker Hub.
+      PUBLISH: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
+      # The Dockerfile copies frontend/dist, so the bundle must exist first.
+      # npm ci (not install) so the build matches the committed lockfile.
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
-      - name: Extract Version
-        id: version
-        run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-            echo "Building version: $VERSION"
-          else
-            echo "VERSION=latest" >> $GITHUB_OUTPUT
-            echo "Building version: latest"
-          fi
+      - name: Log in to Docker Hub
+        if: env.PUBLISH == 'true'
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Publish
-        env:
-          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          chmod +x scripts/docker-publish.sh
-          ./scripts/docker-publish.sh ${{ steps.version.outputs.VERSION }}
+      # main -> :latest, tag v1.2.3 -> :1.2.3 and :latest
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ vars.DOCKERHUB_USERNAME || 'linkary' }}/qwen-tts-server
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          push: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

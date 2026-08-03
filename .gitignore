@@ -65,3 +65,6 @@ app/models/hub
 app/models/xet
 # SSL certificates
 certs/
+
+# Agent workspace (plans, lessons) - local only, never pushed
+tasks/
