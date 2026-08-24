@@ -55,6 +55,7 @@ You can configure the server using environment variables (`-e KEY=VALUE`).
 | `MODEL_DTYPE` | `bfloat16` | Model precision (`float16`, `bfloat16`, `float32`). |
 | `USE_FLASH_ATTENTION` | `true` | Enable Flash Attention 2 (GPU only). |
 | `PRELOAD_MODELS` | `false` | Preload all models on startup (requires ~16GB VRAM). |
+| `CACHE_FIRST_MODEL_LOADING` | `true` | Load a complete cached Hub snapshot before querying Hugging Face. |
 | `LOG_LEVEL` | `INFO` | Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
 
 ### Example with Auth & Config

@@ -4,11 +4,26 @@ Model manager for lazy loading and caching TTS models
 import logging
 import threading
 import time
-from typing import Optional, Dict, Any
-from qwen_tts import Qwen3TTSModel
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 from app.config import settings
+from huggingface_hub import snapshot_download
+from huggingface_hub.errors import LocalEntryNotFoundError
+from qwen_tts import Qwen3TTSModel
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_model_path(model_path: str, *, cache_first: bool) -> str:
+    """Prefer a local Hub snapshot; use the Hub only when absent."""
+    if not cache_first or Path(model_path).is_dir():
+        return model_path
+
+    try:
+        return snapshot_download(model_path, local_files_only=True)
+    except LocalEntryNotFoundError:
+        return model_path
 
 
 class ModelManager:
@@ -51,7 +66,9 @@ class ModelManager:
             Loaded model instance
         """
         config = self._model_configs[model_type]
-        model_path = config["model_path"]
+        model_path = _resolve_model_path(
+            config["model_path"], cache_first=settings.cache_first_model_loading
+        )
         
         logger.info(f"Loading {config['description']} from {model_path}")
         
