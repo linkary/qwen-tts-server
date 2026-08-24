@@ -86,7 +86,10 @@ class Settings(BaseSettings):
         default=False,
         description="Preload all models on startup (requires more GPU memory)"
     )
-    
+    cache_first_model_loading: bool = Field(
+        default=True,
+        description="Load a complete local HuggingFace snapshot before querying the Hub",
+    )
     # Cache Configuration
     voice_cache_enabled: bool = Field(
         default=True,

@@ -377,6 +377,9 @@ MODEL_CACHE_DIR=/app/models
 LOG_LEVEL=INFO
 
 # Model Loading
+# Prefer a complete local Hugging Face cache before fetching a missing model.
+# A missing or incomplete cache still falls back to Hugging Face.
+CACHE_FIRST_MODEL_LOADING=true
 PRELOAD_MODELS=false
 
 # Voice Prompt Caching (NEW in v1.1.0)
